@@ -1,4 +1,3 @@
-```
 # Logs and temp files
 *.log
 
@@ -7,4 +6,21 @@ Fca_Database/
 
 # Sensitive/encrypted files
 .nexca/
-```
+
+# Dependencies (too large for GitHub)
+node_modules/
+
+# Environment variables
+.env
+
+# Backup files
+*.bak
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
