@@ -1,1 +1,10 @@
-node_modules/
+```
+# Logs and temp files
+*.log
+
+# Database files
+Fca_Database/
+
+# Sensitive/encrypted files
+.nexca/
+```
