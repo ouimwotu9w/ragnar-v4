@@ -1,4 +1,5 @@
 module.exports = {
+	// نظام الأوامر - System Commands
 	onlyadminbox: {
 		description: "تشغيل/إيقاف وضع المشرفين فقط لاستخدام البوت",
 		guide: "   {pn} [on | off]",
