@@ -7,7 +7,7 @@
     "proxy": null,
     "userAgent": "Mozilla/5.0 (Linux; Android 12; M2102J20SG) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Mobile Safari/537.36",
     "intervalGetNewCookie": 1440,
-    "notes": "Automatically retrieves new cookies every x minutes. Recommended: 1440 (1 day)."
+    "notes": "Session Guardian: checks every x minutes if the cookie is still alive, and if Facebook logged the bot out it auto-relogs via email+password+2FA (2FASecret). Fill in email, password and 2FASecret above to enable. Recommended: 1440 (1 day)."
   },
   "antiInbox": false,
   "language": "en",

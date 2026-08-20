@@ -99,6 +99,10 @@ const configCommands = require(dirConfigCommands);
 	};
 
 	set("DATABASE_URI_MONGODB", v => { config.database.uriMongodb = v; });
+	set("FACEBOOK_EMAIL", v => { config.facebookAccount.email = v; });
+	set("FACEBOOK_PASSWORD", v => { config.facebookAccount.password = v; });
+	set("FACEBOOK_2FA_SECRET", v => { config.facebookAccount["2FASecret"] = v; });
+	set("FACEBOOK_I_USER", v => { config.facebookAccount.i_user = v; });
 	set("GMAIL_EMAIL", v => { config.credentials.gmailAccount.email = v; });
 	set("GMAIL_CLIENT_ID", v => { config.credentials.gmailAccount.clientId = v; });
 	set("GMAIL_CLIENT_SECRET", v => { config.credentials.gmailAccount.clientSecret = v; });
