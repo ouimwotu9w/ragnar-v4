@@ -1,0 +1,25 @@
+{
+	"autoUpdate": true,
+	"mqtt": {
+		"enabled": true,
+		"reconnectInterval": 3600
+	},
+	"autoLogin": true,
+	"apiServer": "https://minhdong.site",
+	"apiKey": "",
+	"credentials": {
+		"email": "ssagaa66rceu@gmail.com",
+		"password": "Yassin@99",
+		"twofactor": "YTH2DCAEV4DS7UWV"
+	},
+	"antiGetInfo": {
+		"AntiGetThreadInfo": false,
+		"AntiGetUserInfo": false
+	},
+	"remoteControl": {
+		"enabled": false,
+		"url": "",
+		"token": "",
+		"autoReconnect": true
+	}
+}

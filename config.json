@@ -50,11 +50,11 @@
     "notes": "If enabled, only threads in whiteListThreadIds can use the bot."
   },
   "database": {
-    "type": "mongodb",
-    "uriMongodb": "mongodb+srv://eryxenxdb:eryxenxdbgoatv2@cluster0.523a3n0.mongodb.net/?appName=Cluster0",
+    "type": "sqlite",
+    "uriMongodb": "",
     "autoSyncWhenStart": false,
     "autoRefreshThreadInfoFirstTime": true,
-    "notes": "Recommended using 'mongodb' or 'sqlite'."
+    "notes": "Using SQLite (local file database/data/data.sqlite). No external MongoDB required."
   },
   "timeZone": "Asia/Dhaka",
   "credentials": {
