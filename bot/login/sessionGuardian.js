@@ -24,20 +24,8 @@
  */
 
 const fs = require("fs-extra");
-const path = require("path");
-const totp = require("totp-generator");
 const checkLiveCookie = require("./checkLiveCookie.js");
-
-function normalize2FASecret(secret) {
-	// Mirrors the normalization done in login.js so TOTP codes match.
-	return secret
-		.normalize("NFD")
-		.toLowerCase()
-		.replace(/[\u0300-\u036f]/g, "")
-		.replace(/[đ]/g, "d")
-		.replace(/[Đ]/g, "D")
-		.replace(/[(),\s]/g, "");
-}
+const { getFreshCookie } = require("./refreshCookie.js");
 
 function buildCookieString(appState) {
 	if (Array.isArray(appState))
@@ -59,36 +47,6 @@ async function readCurrentAppState(api, dirAccount) {
 	}
 	const raw = await fs.readFile(dirAccount, "utf8");
 	return JSON.parse(raw);
-}
-
-async function reloginViaPassword(fbAccount, log) {
-	const { email, password, userAgent, proxy, "2FASecret": secret2FA } = fbAccount;
-	const getFbstate1 = require("./getFbstate1.js");
-
-	let appState;
-	try {
-		appState = await getFbstate1(email, password, userAgent, proxy);
-	}
-	catch (err) {
-		if (err && err.name === "2FA_CODE_REQUIRED" && typeof err.continue === "function") {
-			if (!secret2FA) {
-				const e = new Error("2FA required but '2FASecret' is not set in config → can't auto-relogin");
-				e.name = "2FA_MISSING";
-				throw e;
-			}
-			log.warn("SESSION GUARDIAN", "2FA required — generating code from 2FASecret…");
-			const code = totp(normalize2FASecret(secret2FA));
-			appState = await err.continue(code);
-		}
-		else {
-			throw err;
-		}
-	}
-
-	if (!appState || !appState.length)
-		throw new Error("Relogin returned an empty appState");
-
-	return appState;
 }
 
 /**
@@ -134,7 +92,7 @@ module.exports = async function ({ api }) {
 			}
 
 			log.warn("SESSION GUARDIAN", "Session cookie is dead ❌ — attempting automatic re-login via email/password…");
-			const fresh = await reloginViaPassword(fbAccount, log);
+			const fresh = await getFreshCookie(fbAccount, log);
 			await fs.writeFile(dirAccount, JSON.stringify(fresh, null, 2));
 			log.success("SESSION GUARDIAN", "Fresh cookies saved to account.txt — restarting bot to apply…");
 			setTimeout(() => process.exit(2), 1500);

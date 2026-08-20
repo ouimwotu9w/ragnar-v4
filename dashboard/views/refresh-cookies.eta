@@ -1,0 +1,90 @@
+<%~ includeFile("partials/header.eta", {
+	user: user
+}); %>
+<%~ includeFile("partials/message.eta"); %>
+<%~ includeFile("partials/title.eta", {
+	icon: "fas fa-rotate",
+	title: "Refresh Cookies"
+}); %>
+
+<div class="container py-4">
+	<div class="row justify-content-center">
+		<div class="col-lg-7">
+			<div class="card border-0 shadow-sm rounded-4">
+				<div class="card-body p-4 p-md-5 text-center">
+
+					<div class="display-4 mb-3 text-primary"><i class="fas fa-cookie-bite"></i></div>
+					<h3 class="fw-bold mb-2">One-click cookie refresh</h3>
+					<p class="text-muted mb-4">
+						When Facebook logs the bot out, press the button below. The bot will
+						sign back in with the saved email &amp; password, save fresh cookies to
+						<code>account.txt</code>, and restart itself automatically.
+					</p>
+
+					<div class="mb-4">
+						<span class="badge text-bg-light border rounded-pill px-3 py-2 me-2">
+							<i class="fas fa-envelope me-1"></i> <%= it.email || "no email configured" %>
+						</span>
+						<% if (it.has2FA) { %>
+						<span class="badge text-bg-success rounded-pill px-3 py-2">
+							<i class="fas fa-shield-halved me-1"></i> 2FA configured
+						</span>
+						<% } else { %>
+						<span class="badge text-bg-warning rounded-pill px-3 py-2">
+							<i class="fas fa-triangle-exclamation me-1"></i> 2FA not set
+						</span>
+						<% } %>
+					</div>
+
+					<div id="result" class="alert d-none"></div>
+
+					<button class="btn btn-primary btn-lg rounded-5 px-5" id="refreshBtn">
+						<i class="fas fa-rotate me-2"></i> Refresh cookies now
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	(function () {
+		const btn = document.getElementById("refreshBtn");
+		const result = document.getElementById("result");
+
+		const show = (type, message) => {
+			result.className = "alert alert-" + type;
+			result.textContent = message;
+		};
+
+		btn.addEventListener("click", function () {
+			btn.disabled = true;
+			btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Refreshing…';
+			result.className = "alert d-none";
+
+			$.ajax({
+				url: "/refresh-cookies",
+				type: "POST",
+				success: function (data) {
+					if (data.status === "success") {
+						show("success", data.message + " The dashboard will reload shortly…");
+						btn.innerHTML = '<i class="fas fa-check me-2"></i> Done — restarting';
+						setTimeout(function () { location.reload(); }, 4000);
+					} else {
+						show("danger", data.message || "Something went wrong.");
+						btn.disabled = false;
+						btn.innerHTML = '<i class="fas fa-rotate me-2"></i> Refresh cookies now';
+					}
+				},
+				error: function (err) {
+					const msg = (err && err.responseJSON && err.responseJSON.message) || "Something went wrong. Please try again.";
+					show("danger", msg);
+					btn.disabled = false;
+					btn.innerHTML = '<i class="fas fa-rotate me-2"></i> Refresh cookies now';
+				}
+			});
+		});
+	})();
+</script>
+
+<%~ includeFile("partials/footer.eta") %>
