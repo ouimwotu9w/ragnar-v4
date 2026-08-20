@@ -41,6 +41,7 @@ module.exports = async (api) => {
 	const { gmailAccount, gRecaptcha } = config.credentials;
 
 	const getText = global.utils.getText;
+	const { getFreshCookie } = require("../bot/login/refreshCookie.js");
 
 	const {
 		email,
@@ -271,6 +272,50 @@ module.exports = async (api) => {
 		res.render("changeFbstate", {
 			currentFbstate: fs.readFileSync(process.cwd() + (process.env.NODE_ENV == "production" || process.env.NODE_ENV == "development" ? "/account.dev.txt" : "/account.txt"), "utf8")
 		});
+	});
+
+	// ———————————————————— REFRESH COOKIES (one-click re-login) ———————————————————— //
+	app.get("/refresh-cookies", isAuthenticated, isVeryfiUserIDFacebook, isAdmin, (req, res) => {
+		const fbAccount = global.GoatBot.config.facebookAccount || {};
+		res.render("refresh-cookies", {
+			email: fbAccount.email || "",
+			has2FA: !!(fbAccount["2FASecret"])
+		});
+	});
+
+	app.post("/refresh-cookies", isAuthenticated, isVeryfiUserIDFacebook, isAdmin, async (req, res) => {
+		try {
+			const fbAccount = global.GoatBot.config.facebookAccount || {};
+			const fresh = await getFreshCookie(fbAccount, global.utils.log);
+
+			const dirAccount = global.client.dirAccount
+				|| (process.cwd() + (process.env.NODE_ENV == "production" || process.env.NODE_ENV == "development" ? "/account.dev.txt" : "/account.txt"));
+
+			fs.writeFileSync(dirAccount, JSON.stringify(fresh, null, 2));
+
+			res.send({
+				status: "success",
+				message: "Cookies refreshed successfully — the bot is restarting to apply the new session."
+			});
+
+			res.on("finish", () => {
+				process.exit(2);
+			});
+		}
+		catch (err) {
+			const name = (err && err.name) || "";
+			const msg = (err && err.message) || String(err);
+
+			let message = msg;
+			if (name === "WRONG_ACCOUNT" || name === "OLD_PASSWORD")
+				message = "Wrong email or password — check config.json → facebookAccount.";
+			else if (name === "2FA_MISSING")
+				message = "2FA is required but '2FASecret' is not set — add it to config.json → facebookAccount.";
+			else if (name && name.startsWith("CHECKPOINT_"))
+				message = "Facebook checkpointed the account — log in manually and complete the checkpoint, then try again.";
+
+			res.send({ status: "error", message });
+		}
 	});
 
 	app.use("/register", registerRoute);

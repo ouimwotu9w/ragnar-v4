@@ -31,6 +31,71 @@ Assalamu Alaikum! **GoatBot-Pro** is an enhanced fork of [Goat Bot V2](https://g
 
 ---
 
+## ◈ Quick Start (Arabic)
+
+**GoatBot-Pro** هو إطار عمل مفتوح المصدر لبناء بوت فيسبوك ماسنجر، مبني على [Goat Bot V2](https://github.com/ntkhang03/Goat-Bot-V2). يتضمن 159+ أمراً جاهزاً، لوحة تحكم ويب، دعم قواعد بيانات (MongoDB / SQLite) وست لغات.
+
+```bash
+git clone https://github.com/EryXenX/GoatBot-Pro.git
+cd GoatBot-Pro
+npm install
+# ضع كوكيز فيسبوك في account.txt ثم:
+node index.js
+```
+
+---
+
+## ◈ منع تسجيل الخروج التلقائي (Facebook Logout)
+
+أكثر مشكلة يواجهها مستخدمو البوتات هي أن فيسبوك يُخرج الحساب من الجلسة، فتضطر لتجديد الكوكيز يدوياً. إليك الحل الجذري:
+
+### لماذا يحدث تسجيل الخروج؟
+1. **استخدام نفس الحساب في مكانين**: لو فتحت حساب البوت من هاتفك أو المتصفح بعد تشغيله، يُبطل فيسبوك جلسة البوت القديمة.
+2. **نقاط التحقق الأمنية (Checkpoint)**: عند تغيّر الـ IP أو بصمة المتصفح بشكل مفاجئ.
+3. **تغيير كلمة المرور**: يُنهي كل الجلسات فوراً.
+4. **انتهاء صلاحية الكوكيز** بمرور الوقت.
+
+### الحل (التجديد التلقائي)
+البوت الآن يحتوي على **Session Guardian** (في `bot/login/sessionGuardian.js`) يعمل كالتالي:
+- يفحص الكوكيز دورياً (كل `intervalGetNewCookie` دقيقة).
+- إذا اكتشف أن الجلسة ميتة، **يسجّل الدخول تلقائياً** بالبريد + كلمة المرور + رمز 2FA، ويحفظ الكوكيز الجديدة في `account.txt` ثم يعيد تشغيل نفسه.
+
+كل ما عليك فعله هو تعبئة بيانات الحساب في `config.json` → `facebookAccount` (أو في ملف `.env`):
+
+```json
+{
+  "facebookAccount": {
+    "email": "بريد-حساب-البوت",
+    "password": "كلمة-المرور",
+    "2FASecret": "رمز-TOTP-من-إعدادات-2FA",
+    "intervalGetNewCookie": 1440
+  }
+}
+```
+
+> 🔑 **خطوات إلزامية لنتيجة مضمونة:**
+> 1. **استخدم حساباً مخصصاً للبوت** — لا تستخدم حسابك الشخصي.
+> 2. **فعّل المصادقة الثنائية (2FA)** في فيسبوك وخذ رمز `2FASecret` (من إعدادات 2FA عند الإعداد) ليمر البوت من موافقة الدخول تلقائياً.
+> 3. **لا تفتح الحساب يدوياً** بعد تشغيل البوت — كل دخول جديد يُبطل جلسة البوت.
+> 4. شغّل البوت من **سيرفر ثابت الـ IP**، ولا تغيّر الـ user agent كثيراً.
+
+إذا لم تُعبّئ البريد وكلمة المرور، سيكتفي البوت بالكوكيز فقط ويعمل بوضع تسجيل الدخول اليدوي (الوضع الحالي).
+
+---
+
+## ◈ Security
+
+> 🔒 **Important:** the `config.json` committed to this repository contains real credentials
+> (MongoDB URI, Gmail OAuth client, reCAPTCHA keys) that are now public in the git history.
+> **Rotate them immediately** and move them into a `.env` file.
+
+1. Copy `.env.example` to `.env` and fill in your real secrets.
+2. Any variable set in `.env` overrides the matching value in `config.json`
+   (see the loader in `EryXenX.js`).
+3. `account.txt`, `.env` and local databases are now git-ignored — never force-add them.
+
+---
+
 ## ◈ Support
 
 <div align="center">

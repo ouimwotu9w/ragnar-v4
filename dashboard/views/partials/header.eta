@@ -1,10 +1,26 @@
 <!DOCTYPE html>
 
-<html data-bs-theme="dark" lang="vi">
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta content="width=device-width, initial-scale=1" name="viewport" />
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+	<script>
+		// Apply saved theme before first paint to avoid a flash of the wrong theme.
+		(function () {
+			try {
+				var theme = localStorage.getItem('theme');
+				if (theme === 'dark') {
+					document.documentElement.classList.add('dark');
+					document.documentElement.setAttribute('data-bs-theme', 'dark');
+				} else {
+					document.documentElement.classList.remove('dark');
+					document.documentElement.setAttribute('data-bs-theme', 'light');
+				}
+			} catch (e) {}
+		})();
+	</script>
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 	<link rel="stylesheet" href="/css/phoenix.css">

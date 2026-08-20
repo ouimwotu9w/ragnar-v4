@@ -64,6 +64,57 @@ if (config.whiteListMode?.whiteListIds && Array.isArray(config.whiteListMode.whi
 	config.whiteListMode.whiteListIds = config.whiteListMode.whiteListIds.map(id => id.toString());
 const configCommands = require(dirConfigCommands);
 
+// ———————————————————— ENV OVERRIDES (optional) ———————————————————— //
+// If a `.env` file exists, its values override the matching keys in
+// config.json. This lets you keep secrets (MongoDB URI, Gmail OAuth,
+// reCAPTCHA) out of version control. See `.env.example`.
+(() => {
+	const envPath = path.join(__dirname, ".env");
+	if (!fs.existsSync(envPath))
+		return;
+	let env = {};
+	try {
+		env = fs.readFileSync(envPath, "utf-8")
+			.split(/\r?\n/)
+			.map(line => line.trim())
+			.filter(line => line && !line.startsWith("#") && line.includes("="))
+			.reduce((acc, line) => {
+				const idx = line.indexOf("=");
+				const key = line.slice(0, idx).trim();
+				let value = line.slice(idx + 1).trim();
+				if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))
+					value = value.slice(1, -1);
+				acc[key] = value;
+				return acc;
+			}, {});
+	}
+	catch (err) {
+		log.warn("ENV", `Could not parse .env file: ${err.message}`);
+		return;
+	}
+
+	const set = (key, fn) => {
+		if (env[key] !== undefined && env[key] !== "")
+			fn(env[key]);
+	};
+
+	set("DATABASE_URI_MONGODB", v => { config.database.uriMongodb = v; });
+	set("FACEBOOK_EMAIL", v => { config.facebookAccount.email = v; });
+	set("FACEBOOK_PASSWORD", v => { config.facebookAccount.password = v; });
+	set("FACEBOOK_2FA_SECRET", v => { config.facebookAccount["2FASecret"] = v; });
+	set("FACEBOOK_I_USER", v => { config.facebookAccount.i_user = v; });
+	set("GMAIL_EMAIL", v => { config.credentials.gmailAccount.email = v; });
+	set("GMAIL_CLIENT_ID", v => { config.credentials.gmailAccount.clientId = v; });
+	set("GMAIL_CLIENT_SECRET", v => { config.credentials.gmailAccount.clientSecret = v; });
+	set("GMAIL_REFRESH_TOKEN", v => { config.credentials.gmailAccount.refreshToken = v; });
+	set("RECAPTCHA_SITE_KEY", v => { config.credentials.gRecaptcha.siteKey = v; });
+	set("RECAPTCHA_SECRET_KEY", v => { config.credentials.gRecaptcha.secretKey = v; });
+	set("ADMIN_BOT", v => {
+		config.adminBot = v.split(",").map(id => id.trim()).filter(Boolean);
+	});
+})();
+// ———————————————————— END ENV OVERRIDES ———————————————————— //
+
 global.GoatBot = {
 	startTime: Date.now() - process.uptime() * 1000, // time start bot (ms)
 	commands: new Map(), // store all commands
