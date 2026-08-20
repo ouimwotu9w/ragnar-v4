@@ -31,6 +31,33 @@ Assalamu Alaikum! **GoatBot-Pro** is an enhanced fork of [Goat Bot V2](https://g
 
 ---
 
+## ◈ Quick Start (Arabic)
+
+**GoatBot-Pro** هو إطار عمل مفتوح المصدر لبناء بوت فيسبوك ماسنجر، مبني على [Goat Bot V2](https://github.com/ntkhang03/Goat-Bot-V2). يتضمن 159+ أمراً جاهزاً، لوحة تحكم ويب، دعم قواعد بيانات (MongoDB / SQLite) وست لغات.
+
+```bash
+git clone https://github.com/EryXenX/GoatBot-Pro.git
+cd GoatBot-Pro
+npm install
+# ضع كوكيز فيسبوك في account.txt ثم:
+node index.js
+```
+
+---
+
+## ◈ Security
+
+> 🔒 **Important:** the `config.json` committed to this repository contains real credentials
+> (MongoDB URI, Gmail OAuth client, reCAPTCHA keys) that are now public in the git history.
+> **Rotate them immediately** and move them into a `.env` file.
+
+1. Copy `.env.example` to `.env` and fill in your real secrets.
+2. Any variable set in `.env` overrides the matching value in `config.json`
+   (see the loader in `EryXenX.js`).
+3. `account.txt`, `.env` and local databases are now git-ignored — never force-add them.
+
+---
+
 ## ◈ Support
 
 <div align="center">

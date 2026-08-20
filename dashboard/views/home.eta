@@ -2,103 +2,209 @@
 	user: user
 }) %>
 <%~ includeFile("partials/message.eta") %>
-<%~ includeFile("partials/title.eta", {
-	icon: "fas fa-home",
-	title: "Home"
-}); %>
 
-<h1 class="text-center mt-3">Welcome to Goat Bot!</h1>
+<% const botOnline = typeof global.botID === "string" && global.botID.length > 0; %>
+<% const totalThreads = global.db.allThreadData.length; %>
+<% const totalUsers = global.db.allUserData.length; %>
+<% const totalCommands = global.GoatBot.commands.size; %>
+<% const botPrefix = global.GoatBot.config.prefix; %>
 
-<ul class="text-center d-block list-unstyled">
-	<li> <i class="fas fa-user-shield"></i> Moderation</li>
-	<li> <i class="fas fa-terminal"></i> Custom commands</li>
-</ul>
-
-<div class="text-center mb-3">
-<% if (global.botID) { %>
-	<button class="btn btn-phoenix-primary btn-block rounded-5" id="addme">
-		Thêm bot vào box chat của bạn
-	</button>
-<% } else { %>
-	<button class="btn btn-phoenix-danger btn-block rounded-5">
-		Hiện tại bot đang offline
-	</button>
-<% } %>
-</div>
-
-<hr>
-
-<!-- go to /dashboard -->
-<section id="about" class="py-5" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
+<!-- ============================================================
+     ✨ Hero
+     ============================================================ -->
+<section class="landing-hero">
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 mx-auto">
-				<h2 class="text-center mb-4">Dễ dàng sử dụng</h2>
-				<p class="text-center">Tại đây bạn có thể tùy chỉnh lời chào thành viên mới, tạm biệt thành viên rời khỏi
-					box, v.v. và nhiều hơn nữa với bảng điều khiển dễ sử dụng và trực quan nhất!</p>
+		<div class="text-center">
+			<span class="hero-eyebrow">
+				<span class="dot"></span>
+				<% if (botOnline) { %>Bot is online &amp; ready<% } else { %>Setup required to go live<% } %>
+			</span>
+
+			<h1 class="landing-title">
+				Power your chats with<br>
+				<span class="grad">GoatBot-Pro</span>
+			</h1>
+
+			<p class="landing-sub">
+				An open-source Facebook Messenger bot framework — moderation, custom commands,
+				rank &amp; levels, multi-language and a full web dashboard. Fast, smart and
+				built to be yours.
+			</p>
+
+			<div class="landing-cta">
+				<% if (botOnline) { %>
+				<a class="btn-hero btn-hero-primary" href="https://www.facebook.com/<%= global.botID %>" target="_blank" rel="noopener">
+					<i class="fab fa-facebook-messenger"></i> Add bot to your chat
+				</a>
+				<% } %>
+				<a class="btn-hero btn-hero-ghost" href="/dashboard">
+					<i class="fas fa-cog"></i> Open dashboard
+				</a>
+				<a class="btn-hero btn-hero-ghost" href="/stats">
+					<i class="fas fa-chart-bar"></i> View stats
+				</a>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section id="rent-api" class="bg-light py-5" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
+<!-- ============================================================
+     ✨ Stats strip
+     ============================================================ -->
+<section class="landing-stats">
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 mx-auto">
-				<h2 class="text-center mb-4">Gửi lời chào khi có người dùng mới tham gia vào nhóm chat</h2>
-				<p class="text-center">Tận dụng thông điệp chào mừng để thông báo cho những người mới đến về các quy tắc
-					nhóm chat, hoặc các sự kiện đang diễn ra của bạn. Bạn có thể thiết kế thiệp chào mừng của riêng
-					bạn hoặc giữ nó đơn giản.</p>
+		<div class="row g-4">
+			<div class="col-6 col-lg-3 reveal">
+				<div class="stat-card">
+					<div class="stat-value grad"><%= totalThreads %></div>
+					<div class="stat-label">Active chats</div>
+				</div>
+			</div>
+			<div class="col-6 col-lg-3 reveal">
+				<div class="stat-card">
+					<div class="stat-value grad"><%= totalUsers %></div>
+					<div class="stat-label">Users served</div>
+				</div>
+			</div>
+			<div class="col-6 col-lg-3 reveal">
+				<div class="stat-card">
+					<div class="stat-value grad"><%= totalCommands %></div>
+					<div class="stat-label">Commands</div>
+				</div>
+			</div>
+			<div class="col-6 col-lg-3 reveal">
+				<div class="stat-card">
+					<div class="stat-value grad"><%= botPrefix %></div>
+					<div class="stat-label">Command prefix</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section id="contact" class="py-5" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
+<!-- ============================================================
+     ✨ Features
+     ============================================================ -->
+<section class="landing-section">
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 mx-auto">
-				<h2 class="text-center mb-4">Dễ dàng tạo các lệnh tùy chỉnh của riêng bạn</h2>
-				<p class="text-center">Goat Bot cung cấp cho bạn toàn quyền kiểm soát để tạo ra lệnh của riêng bạn.</p>
+		<div class="text-center mb-5 reveal">
+			<h2 class="landing-section-heading">Everything your group needs</h2>
+			<p class="landing-section-sub">
+				From moderation to fun, GoatBot-Pro ships with a rich set of built-in features
+				you can control right from the dashboard.
+			</p>
+		</div>
+
+		<div class="row g-4">
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-user-shield"></i></span>
+					<h3 class="feature-title">Moderation</h3>
+					<p class="feature-desc">Ban, warn, filter bad words, anti-leave and admin-only
+					controls to keep every chat safe and friendly.</p>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-terminal"></i></span>
+					<h3 class="feature-title">Custom commands</h3>
+					<p class="feature-desc">Create your own commands with a simple, documented API —
+					reply, reaction and event handlers included.</p>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-trophy"></i></span>
+					<h3 class="feature-title">Rank &amp; levels</h3>
+					<p class="feature-desc">Reward your most active members with experience,
+					levels and custom rank cards that celebrate progress.</p>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-language"></i></span>
+					<h3 class="feature-title">Multi-language</h3>
+					<p class="feature-desc">Speaks English, Arabic, Bengali, Hindi, Tagalog and
+					Vietnamese out of the box — switch per chat.</p>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-images"></i></span>
+					<h3 class="feature-title">Welcome cards</h3>
+					<p class="feature-desc">Greet new members with beautiful, personalised welcome
+					cards and say goodbye when someone leaves.</p>
+				</div>
+			</div>
+			<div class="col-md-6 col-lg-4 reveal">
+				<div class="feature-card">
+					<span class="feature-icon"><i class="fas fa-gauge-high"></i></span>
+					<h3 class="feature-title">Web dashboard</h3>
+					<p class="feature-desc">Manage threads, welcome messages, custom commands and
+					more from an intuitive, real-time web panel.</p>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
 
-<section id="thanks" class="bg-light py-5" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
+<!-- ============================================================
+     ✨ Get started
+     ============================================================ -->
+<section class="landing-section" style="background: var(--landing-bg-2);">
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 mx-auto">
-				<h2 class="text-center mb-4">Cấp độ và exp trong box chat của bạn</h2>
-				<p class="text-center">Sử dụng hệ thống chúng tôi để xác định và thưởng cho các thành viên tích cực nhất
-					trong nhóm chat của bạn.</p>
+		<div class="text-center mb-5 reveal">
+			<h2 class="landing-section-heading">Get started in minutes</h2>
+			<p class="landing-section-sub">Three simple steps and your bot is live.</p>
+		</div>
+
+		<div class="row g-4 justify-content-center">
+			<div class="col-md-4 reveal">
+				<div class="step-wrap text-center">
+					<span class="step-num">1</span>
+					<div class="step-title">Add your cookies</div>
+					<p class="step-desc">Paste your Facebook cookies into <code>account.txt</code>
+					and tweak <code>config.json</code>.</p>
+				</div>
+			</div>
+			<div class="col-md-4 reveal">
+				<div class="step-wrap text-center">
+					<span class="step-num">2</span>
+					<div class="step-title">Run the bot</div>
+					<p class="step-desc"><code>npm install</code> then <code>node index.js</code>
+					— the bot logs in and starts listening.</p>
+				</div>
+			</div>
+			<div class="col-md-4 reveal">
+				<div class="step-wrap text-center">
+					<span class="step-num">3</span>
+					<div class="step-title">Open the dashboard</div>
+					<p class="step-desc">Visit the dashboard to register, configure your threads and
+					manage everything in one place.</p>
+				</div>
 			</div>
 		</div>
 	</div>
 </section>
-
-<section id="contact" class="py-5" onclick="window.location.href='/dashboard'" style="cursor: pointer;">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-8 mx-auto">
-				<h2 class="text-center mb-4">Người dùng</h2>
-				<p class="text-center">Hiện tại bot đã được thêm vào tổng cộng <b><%=global.db.allThreadData.length%> nhóm
-					chat</b> và được sử dụng bởi <b><%=global.db.allUserData.length%> người dùng</b>.</p>
-			</div>
-		</div>
-	</div>
-</section>
-
 
 <script type="text/javascript">
-  (function() {
-    const btn = $('#addme');
-		if (btn.length > 0) {
-			btn.on("click", () => {
-				window.open("https://www.facebook.com/" + "<%= global.botID %>", "_blank");
-			});
+	(function () {
+		// Reveal-on-scroll
+		var els = document.querySelectorAll('.reveal');
+		if ('IntersectionObserver' in window) {
+			var io = new IntersectionObserver(function (entries) {
+				entries.forEach(function (entry) {
+					if (entry.isIntersecting) {
+						entry.target.classList.add('is-visible');
+						io.unobserve(entry.target);
+					}
+				});
+			}, { threshold: 0.12 });
+			els.forEach(function (el) { io.observe(el); });
+		} else {
+			els.forEach(function (el) { el.classList.add('is-visible'); });
 		}
-  })();
+	})();
 </script>
 
 <%~ includeFile('partials/footer.eta') %>

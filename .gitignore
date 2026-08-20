@@ -1,1 +1,29 @@
+# Dependencies
 node_modules/
+
+# Sensitive credentials — NEVER commit these
+account.txt
+account.dev.txt
+.env
+.env.*
+!.env.example
+
+# Local database / runtime state
+database/data/*.sqlite
+database/data/*.db
+scripts/cmds/cache/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Demo preview (generated artifact)
+preview/
+
