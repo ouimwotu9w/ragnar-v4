@@ -1,24 +1,11 @@
-<nav class="heritage-nav fixed-top">
-  <div class="container heritage-nav-inner">
-    <a class="heritage-brand" href="/dashboard" aria-label="GoatBot dashboard">
-      <img src="/images/logo-non-bg.png" height="36" width="36" alt="GoatBot logo">
-      <span>Ragnar Control</span>
-    </a>
-
-    <button class="heritage-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navcollapse" aria-controls="navcollapse" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <div class="collapse navbar-collapse heritage-nav-collapse" id="navcollapse">
-      <ul class="heritage-nav-links">
-        <li><a href="/dashboard"><i class="fas fa-table-columns"></i> Control</a></li>
-        <li><a href="/stats"><i class="fas fa-chart-simple"></i> Stats</a></li>
-        <li><a href="/uptime"><i class="fas fa-signal"></i> Uptime</a></li>
-      </ul>
-
-      <ul class="heritage-nav-actions">
-        <li><a class="heritage-button" href="/dashboard">Open panel</a></li>
-      </ul>
-    </div>
+<nav class="m3-topbar" dir="rtl">
+  <a class="m3-topbar-brand" href="/dashboard" aria-label="RagnarBot-V0">
+    <span>R</span>
+    <strong>RagnarBot-V0</strong>
+  </a>
+  <div>
+    <a href="/dashboard">لوحة التحكم</a>
+    <a href="/stats">الإحصائيات</a>
+    <a href="/uptime">Uptime</a>
   </div>
 </nav>

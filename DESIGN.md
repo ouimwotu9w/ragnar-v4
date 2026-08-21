@@ -1,80 +1,96 @@
 ---
 version: "alpha"
-name: Heritage
-description: Architectural minimalism with journalistic gravitas for the GoatBot dashboard.
+name: Ragnar Material 3
+description: Arabic RTL Material 3 dark control center for RagnarBot-V0 by Saga Sama.
 colors:
-  primary: "#1A1C1E"
-  secondary: "#6C7278"
-  tertiary: "#B8422E"
-  neutral: "#F7F5F2"
-  surface: "#FFFFFF"
-  border: "#D8D2CA"
-  on-tertiary: "#FFFFFF"
+  primary: "#D0BCFF"
+  on-primary: "#381E72"
+  primary-container: "#4F378B"
+  secondary: "#CCC2DC"
+  tertiary: "#EFB8C8"
+  background: "#101014"
+  surface: "#141218"
+  surface-container: "#211F26"
+  surface-container-high: "#2B2930"
+  outline: "#938F99"
+  success: "#8DE7B2"
+  warning: "#FFD789"
+  error: "#F2B8B5"
 typography:
-  h1:
-    fontFamily: Public Sans
-    fontSize: 3rem
+  display:
+    fontFamily: Cairo
+    fontSize: 3.5rem
+    fontWeight: 800
+    lineHeight: 1.08
+  title:
+    fontFamily: Cairo
+    fontSize: 1.25rem
     fontWeight: 700
-    lineHeight: 1.05
-  body-md:
-    fontFamily: Public Sans
+    lineHeight: 1.35
+  body:
+    fontFamily: Cairo
     fontSize: 1rem
     fontWeight: 400
-    lineHeight: 1.65
-  label-caps:
-    fontFamily: Space Grotesk
-    fontSize: 0.75rem
+    lineHeight: 1.75
+  label:
+    fontFamily: Cairo
+    fontSize: 0.78rem
     fontWeight: 700
-    letterSpacing: 0.14em
+    letterSpacing: 0.02em
 rounded:
-  sm: 4px
-  md: 8px
+  sm: 12px
+  md: 20px
+  lg: 28px
 spacing:
   sm: 8px
   md: 16px
-  lg: 32px
+  lg: 24px
+  xl: 40px
 components:
-  button-primary:
-    backgroundColor: "{colors.tertiary}"
-    textColor: "{colors.on-tertiary}"
-    rounded: "{rounded.sm}"
-    padding: 12px
-  card:
-    backgroundColor: "{colors.surface}"
+  nav-rail:
+    backgroundColor: "{colors.surface-container}"
+    textColor: "{colors.secondary}"
+    rounded: "{rounded.lg}"
+  button-tonal:
+    backgroundColor: "{colors.primary-container}"
     textColor: "{colors.primary}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.lg}"
+    padding: 14px
+  card:
+    backgroundColor: "{colors.surface-container}"
+    textColor: "{colors.secondary}"
+    rounded: "{rounded.lg}"
     padding: 24px
 ---
 
 ## Overview
 
-Architectural Minimalism meets Journalistic Gravitas. The dashboard should feel like a premium matte broadsheet: focused, editorial, calm, and precise.
+RagnarBot-V0 uses a premium Arabic RTL Material 3 dashboard. It should feel like a serious command center: dark surfaces, tonal containers, clear status signals, and large readable controls.
 
 ## Colors
 
-The palette is rooted in high-contrast neutrals and one warm action color.
-
-- **Primary (#1A1C1E):** Deep ink for headlines and core text.
-- **Secondary (#6C7278):** Sophisticated slate for metadata, captions, and secondary navigation.
-- **Tertiary (#B8422E):** Boston Clay, the only interactive accent.
-- **Neutral (#F7F5F2):** Warm limestone background, softer than pure white.
+Use Material 3 dark surfaces as the foundation. Purple primary tones are reserved for selected navigation and main actions; green, amber, and red are used only for status.
 
 ## Typography
 
-Public Sans carries all reading surfaces and Space Grotesk is reserved for uppercase labels, metrics, and control text.
+Cairo is the dashboard font for Arabic readability. Use strong display headings, compact labels, and generous body line-height.
 
 ## Layout
 
-Use spacious editorial grids, large whitespace, quiet dividers, and compact controls. Avoid neon gradients and glassmorphism.
+Use a side Navigation Rail on desktop and stacked mobile navigation. The dashboard is split into overview, settings, groups, commands, security, and logs.
+
+## Elevation & Depth
+
+Use tonal surfaces and subtle borders instead of heavy shadows. Elevation is expressed by brighter surface-container layers.
 
 ## Shapes
 
-Use restrained radii: 4px for controls and 8px for cards.
+Use Material 3 rounded shapes: 12px for fields, 20px for cards, and 28px for hero/nav/action containers.
 
 ## Components
 
-Cards are matte white with thin limestone borders. Primary buttons use Boston Clay with white text.
+Cards, tonal buttons, outlined fields, switches, chips, tables, and log panels should all share the same token set.
 
 ## Do's and Don'ts
 
-Do use calm whitespace, crisp text hierarchy, and warm neutrals. Do not use bright cyber gradients, glowing cards, or heavy rounded pills.
+Do keep the interface Arabic-first, detailed, and operational. Do not show GoatBot, GoatBot-Pro, old dashboard credits, cookies, appstate, or session secrets in the UI.

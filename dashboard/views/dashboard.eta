@@ -1,212 +1,215 @@
-<%~ includeFile("partials/header.eta", {
-	user: user
-}); %>
+<%~ includeFile("partials/header.eta", { user: user }); %>
 <%~ includeFile("partials/message.eta"); %>
 
 <%
 const managedThreads = threads || [];
 const commandList = commands || [];
 const eventList = events || [];
+const safeAdmins = (settings.admins || []).filter(Boolean).join("\n");
+const safeWhiteUsers = (settings.whiteListIds || []).join("\n");
+const safeWhiteThreads = (settings.whiteListThreadIds || []).join("\n");
 const totalMembers = managedThreads.reduce((sum, thread) => sum + ((thread.members || []).filter(member => member.inGroup).length), 0);
-const categories = [...new Set(commandList.map(command => command.category || "uncategorized"))].sort();
+const activeWelcome = managedThreads.filter(thread => thread.data?.sendWelcomeMessage !== false).length;
+const activeLeave = managedThreads.filter(thread => thread.data?.sendLeaveMessage !== false).length;
+const activeRank = managedThreads.filter(thread => thread.data?.rankup !== false).length;
+const categories = [...new Set(commandList.map(command => command.category || "عام"))].sort();
+const adminCommands = commandList.filter(command => Number(command.role) > 0).length;
 const uptimeSeconds = Math.floor((bot && bot.uptime) || 0);
-const uptimeHours = Math.floor(uptimeSeconds / 3600);
+const uptimeDays = Math.floor(uptimeSeconds / 86400);
+const uptimeHours = Math.floor((uptimeSeconds % 86400) / 3600);
 const uptimeMinutes = Math.floor((uptimeSeconds % 3600) / 60);
 %>
 
-<main class="heritage-page">
-  <section class="heritage-hero heritage-dashboard-hero">
-    <div class="container">
-      <div class="heritage-kicker">No-login operations dashboard</div>
-      <div class="heritage-hero-grid">
-        <div>
-          <h1>Everything Ragnar needs, in one clean control room.</h1>
-          <p>No registration wall, no old dashboard flow. This panel opens directly and gives you bot health, command inventory, thread visibility, runtime details, and quick operational actions.</p>
-          <div class="heritage-cta-row">
-            <a class="heritage-button" href="#threads-panel">Manage threads</a>
-            <a class="heritage-button heritage-button-secondary" href="#commands-panel">Browse commands</a>
-            <a class="heritage-button heritage-button-secondary" href="/stats">System stats</a>
-          </div>
-        </div>
-        <div class="heritage-status-card">
-          <span class="heritage-status-dot"></span>
-          <strong><%= bot.id !== "Not connected" ? "Messenger session online" : "Waiting for Messenger login" %></strong>
-          <small>ID <%= bot.id %> · uptime <%= uptimeHours %>h <%= uptimeMinutes %>m</small>
+<main class="m3-shell" dir="rtl">
+  <aside class="m3-rail" aria-label="تنقل لوحة التحكم">
+    <div class="m3-rail-brand">
+      <span class="m3-logo">R</span>
+      <strong>Ragnar</strong>
+    </div>
+    <a href="#overview" class="active"><i class="fas fa-gauge-high"></i><span>نظرة عامة</span></a>
+    <a href="#settings"><i class="fas fa-sliders"></i><span>الإعدادات</span></a>
+    <a href="#groups"><i class="fas fa-users"></i><span>المجموعات</span></a>
+    <a href="#commands"><i class="fas fa-terminal"></i><span>الأوامر</span></a>
+    <a href="#security"><i class="fas fa-shield-halved"></i><span>الحماية</span></a>
+  </aside>
+
+  <section class="m3-content">
+    <section class="m3-hero" id="overview">
+      <div>
+        <span class="m3-label">لوحة تحكم Material 3 عربية</span>
+        <h1><%= bot.name %></h1>
+        <p>مركز تشغيل مفصل للبوت، بدون تسجيل، بدون واجهة قديمة، وبدون عرض أي أسرار جلسة. البرمجة والهوية باسم <strong><%= bot.programmer %></strong>.</p>
+        <div class="m3-actions">
+          <a class="m3-btn filled" href="#settings">تعديل الإعدادات</a>
+          <a class="m3-btn tonal" href="#commands">دليل الأوامر</a>
+          <a class="m3-btn outlined" href="/uptime">فحص Uptime</a>
         </div>
       </div>
-    </div>
-  </section>
+      <article class="m3-status-card">
+        <span class="m3-pulse"></span>
+        <h2><%= bot.id !== "غير متصل" ? "جلسة Messenger تعمل" : "في انتظار تسجيل الدخول" %></h2>
+        <p>المعرف: <%= bot.id %></p>
+        <p>التشغيل: <%= uptimeDays %> يوم · <%= uptimeHours %> ساعة · <%= uptimeMinutes %> دقيقة</p>
+      </article>
+    </section>
 
-  <section class="container heritage-section">
-    <div class="heritage-metrics heritage-metrics-wide">
-      <article class="heritage-metric-card">
-        <span>Threads</span>
-        <strong><%= managedThreads.length %></strong>
-      </article>
-      <article class="heritage-metric-card">
-        <span>Active members</span>
-        <strong><%= totalMembers %></strong>
-      </article>
-      <article class="heritage-metric-card">
-        <span>Commands</span>
-        <strong><%= commandList.length %></strong>
-      </article>
-      <article class="heritage-metric-card">
-        <span>Events</span>
-        <strong><%= eventList.length %></strong>
-      </article>
-    </div>
+    <section class="m3-stat-grid">
+      <article class="m3-stat"><span>المجموعات</span><strong><%= managedThreads.length %></strong></article>
+      <article class="m3-stat"><span>الأعضاء النشطين</span><strong><%= totalMembers %></strong></article>
+      <article class="m3-stat"><span>الأوامر</span><strong><%= commandList.length %></strong></article>
+      <article class="m3-stat"><span>الأحداث</span><strong><%= eventList.length %></strong></article>
+      <article class="m3-stat"><span>أوامر الإدارة</span><strong><%= adminCommands %></strong></article>
+      <article class="m3-stat"><span>الذاكرة</span><strong><%= bot.memoryMB %>MB</strong></article>
+    </section>
 
-    <div class="heritage-ops-grid">
-      <article class="heritage-panel heritage-mini-panel">
-        <span class="heritage-kicker">Bot profile</span>
-        <dl class="heritage-definition-list">
-          <div><dt>Nickname</dt><dd><%= bot.nickName || "Not set" %></dd></div>
-          <div><dt>Prefix</dt><dd><code><%= bot.prefix %></code></dd></div>
-          <div><dt>Language</dt><dd><%= bot.language %></dd></div>
-          <div><dt>Database</dt><dd><%= bot.databaseType %></dd></div>
+    <section class="m3-grid two" id="settings">
+      <article class="m3-card wide">
+        <div class="m3-card-head">
+          <span class="m3-label">إعدادات أساسية</span>
+          <h2>تحكم سريع في هوية وسلوك البوت</h2>
+        </div>
+        <form class="m3-form" id="settings-form">
+          <div class="m3-fields">
+            <label>اسم البوت<input name="nickNameBot" value="<%= bot.nickName %>" maxlength="80"></label>
+            <label>البادئة<input name="prefix" value="<%= bot.prefix %>" maxlength="10"></label>
+            <label>اللغة<input name="language" value="<%= bot.language %>" maxlength="10"></label>
+          </div>
+          <div class="m3-switch-grid">
+            <label class="m3-switch"><input type="checkbox" name="antiInbox" <%= settings.antiInbox ? "checked" : "" %>><span></span><b>منع الخاص</b></label>
+            <label class="m3-switch"><input type="checkbox" name="noPrefix" <%= settings.noPrefix ? "checked" : "" %>><span></span><b>تشغيل بدون بادئة</b></label>
+            <label class="m3-switch"><input type="checkbox" name="adminOnly" <%= settings.adminOnly ? "checked" : "" %>><span></span><b>الأوامر للأدمن فقط</b></label>
+            <label class="m3-switch"><input type="checkbox" name="whiteListMode" <%= settings.whiteListMode ? "checked" : "" %>><span></span><b>WhiteList للأشخاص</b></label>
+            <label class="m3-switch"><input type="checkbox" name="whiteListThreadMode" <%= settings.whiteListThreadMode ? "checked" : "" %>><span></span><b>WhiteList للجروبات</b></label>
+          </div>
+          <div class="m3-fields split">
+            <label>قائمة الأشخاص المسموحين<textarea name="whiteListIds" rows="5"><%= safeWhiteUsers %></textarea></label>
+            <label>قائمة الجروبات المسموحة<textarea name="whiteListThreadIds" rows="5"><%= safeWhiteThreads %></textarea></label>
+          </div>
+          <button class="m3-btn filled" type="submit">حفظ الإعدادات</button>
+          <span class="m3-save-state" id="settings-state"></span>
+        </form>
+      </article>
+
+      <article class="m3-card" id="security">
+        <span class="m3-label">الحماية والجلسة</span>
+        <dl class="m3-list">
+          <div><dt>مراقب الجلسة</dt><dd>كل <%= settings.sessionRefreshMinutes %> دقيقة</dd></div>
+          <div><dt>قاعدة البيانات</dt><dd><%= bot.databaseType %></dd></div>
+          <div><dt>Node.js</dt><dd><%= bot.nodeVersion %></dd></div>
+          <div><dt>المنصة</dt><dd><%= bot.platform %></dd></div>
+          <div><dt>منفذ الداشبورد</dt><dd><%= bot.dashboardPort %></dd></div>
         </dl>
+        <div class="m3-note success">لا يتم عرض cookies أو appstate أو كلمات مرور داخل اللوحة.</div>
       </article>
+    </section>
 
-      <article class="heritage-panel heritage-mini-panel">
-        <span class="heritage-kicker">Quick actions</span>
-        <div class="heritage-action-list">
-          <a href="/stats"><i class="fas fa-chart-simple"></i><span>Open detailed stats</span></a>
-          <a href="/uptime"><i class="fas fa-signal"></i><span>Check uptime endpoint</span></a>
-          <a href="/refresh-cookies"><i class="fas fa-rotate"></i><span>Refresh cookies manually</span></a>
-        </div>
-      </article>
-
-      <article class="heritage-panel heritage-mini-panel">
-        <span class="heritage-kicker">Command categories</span>
-        <div class="heritage-chip-list">
-          <% if (!categories.length) { %>
-          <span>No commands loaded</span>
-          <% } %>
-          <% categories.forEach(category => { %>
-          <span><%= category %></span>
-          <% }) %>
+    <section class="m3-grid two">
+      <article class="m3-card">
+        <span class="m3-label">إعدادات المجموعات</span>
+        <div class="m3-ring-list">
+          <div><strong><%= activeWelcome %></strong><span>ترحيب مفعل</span></div>
+          <div><strong><%= activeLeave %></strong><span>وداع مفعل</span></div>
+          <div><strong><%= activeRank %></strong><span>Rank مفعل</span></div>
         </div>
       </article>
-    </div>
+      <article class="m3-card">
+        <span class="m3-label">المبرمج والهوية</span>
+        <h2><%= bot.programmer %></h2>
+        <p class="m3-muted">كل الواجهة الجديدة والبراند الظاهر للمستخدم باسم RagnarBot-V0 فقط.</p>
+        <div class="m3-chip-row"><span>Material 3</span><span>RTL</span><span>No Login</span><span>No Credits UI</span></div>
+      </article>
+    </section>
 
-    <div class="heritage-panel heritage-dashboard-panel" id="threads-panel" data-list="">
-      <div class="heritage-panel-head">
-        <div>
-          <span class="heritage-kicker">Thread index</span>
-          <h2>Groups and member counts</h2>
-        </div>
-        <div class="heritage-tools">
-          <div class="heritage-search">
-            <i class="fas fa-search"></i>
-            <input class="search" type="search" placeholder="Search threads" aria-label="Search threads" id="search-input">
-          </div>
-          <select id="searchBy" aria-label="Search by">
-            <option value="thread_id" selected>Box ID</option>
-            <option value="thread_name">Box name</option>
-          </select>
-          <button class="heritage-button heritage-button-secondary" id="reset-button" type="button">Reset</button>
-        </div>
+    <section class="m3-card" id="groups">
+      <div class="m3-card-head row">
+        <div><span class="m3-label">المجموعات</span><h2>فهرس الجروبات والإعدادات</h2></div>
+        <div class="m3-search"><i class="fas fa-search"></i><input id="thread-search" placeholder="ابحث بالاسم أو ID"></div>
       </div>
-
-      <div class="heritage-table-wrap">
-        <table class="heritage-table">
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th class="sort" data-sort="thread_id">Box ID</th>
-              <th class="sort" data-sort="thread_name">Box name</th>
-              <th class="sort" data-sort="members">Members</th>
-              <th>Status</th>
-            </tr>
-          </thead>
+      <div class="m3-table-wrap" id="threads-panel" data-list="">
+        <table class="m3-table">
+          <thead><tr><th>#</th><th>اسم المجموعة</th><th>ID</th><th>الأعضاء</th><th>الترحيب</th><th>الوداع</th><th>الرتب</th><th>البادئة</th></tr></thead>
           <tbody class="list">
-            <% for (let i = 0; i < managedThreads.length; i++) { %>
-            <% const memberCount = (managedThreads[i].members || []).filter(member => member.inGroup).length; %>
+            <% managedThreads.forEach((thread, index) => { %>
+            <% const memberCount = (thread.members || []).filter(member => member.inGroup).length; %>
             <tr>
-              <td><%= i + 1 %></td>
-              <td class="thread_id"><code><%= managedThreads[i].threadID %></code></td>
-              <td class="thread_name"><%= managedThreads[i].threadName || "Untitled thread" %></td>
+              <td><%= index + 1 %></td>
+              <td class="thread_name"><%= thread.threadName || "مجموعة بدون اسم" %></td>
+              <td class="thread_id"><code><%= thread.threadID %></code></td>
               <td class="members"><%= memberCount %></td>
-              <td><span class="heritage-badge"><%= memberCount > 0 ? "Active" : "Empty" %></span></td>
+              <td><span class="m3-badge <%= thread.data?.sendWelcomeMessage === false ? "off" : "" %>"><%= thread.data?.sendWelcomeMessage === false ? "متوقف" : "مفعل" %></span></td>
+              <td><span class="m3-badge <%= thread.data?.sendLeaveMessage === false ? "off" : "" %>"><%= thread.data?.sendLeaveMessage === false ? "متوقف" : "مفعل" %></span></td>
+              <td><span class="m3-badge <%= thread.data?.rankup === false ? "off" : "" %>"><%= thread.data?.rankup === false ? "متوقف" : "مفعل" %></span></td>
+              <td><code><%= thread.data?.prefix || bot.prefix %></code></td>
             </tr>
-            <% } %>
+            <% }) %>
           </tbody>
         </table>
+        <ul class="pagination m3-pagination"></ul>
       </div>
-      <ul class="pagination heritage-pagination"></ul>
-    </div>
+    </section>
 
-    <div class="heritage-panel heritage-dashboard-panel" id="commands-panel" data-list="">
-      <div class="heritage-panel-head">
-        <div>
-          <span class="heritage-kicker">Command inventory</span>
-          <h2>Loaded commands</h2>
-        </div>
-        <div class="heritage-tools">
-          <div class="heritage-search">
-            <i class="fas fa-search"></i>
-            <input class="search" type="search" placeholder="Search commands" aria-label="Search commands" id="command-search-input">
-          </div>
-        </div>
+    <section class="m3-card" id="commands">
+      <div class="m3-card-head row">
+        <div><span class="m3-label">دليل الأوامر</span><h2>كل الأوامر المحملة</h2></div>
+        <div class="m3-search"><i class="fas fa-search"></i><input id="command-search" placeholder="ابحث عن أمر أو تصنيف"></div>
       </div>
-
-      <div class="heritage-command-grid list">
+      <div class="m3-chip-row categories"><% categories.forEach(category => { %><span><%= category %></span><% }) %></div>
+      <div class="m3-command-grid list" id="commands-panel" data-list="">
         <% commandList.forEach(command => { %>
-        <article class="heritage-command-card">
-          <div>
-            <span class="category"><%= command.category %></span>
-            <h3 class="name"><%= command.name %></h3>
-            <p class="description"><%= command.description %></p>
-          </div>
-          <div class="heritage-command-meta">
-            <span>Role <span class="role"><%= command.role %></span></span>
-            <% if (command.aliases.length) { %>
-            <span class="aliases"><%= command.aliases.join(", ") %></span>
-            <% } %>
-          </div>
+        <article class="m3-command-card">
+          <span class="category"><%= command.category %></span>
+          <h3 class="name"><%= command.name %></h3>
+          <p class="description"><%= command.description %></p>
+          <div><span class="role">صلاحية <%= command.role %></span><span class="cooldown">مهلة <%= command.countDown %>ث</span></div>
+          <% if (command.aliases.length) { %><small class="aliases"><%= command.aliases.join(", ") %></small><% } %>
         </article>
         <% }) %>
       </div>
-      <ul class="pagination heritage-pagination"></ul>
-    </div>
+      <ul class="pagination m3-pagination"></ul>
+    </section>
+
+    <section class="m3-grid two">
+      <article class="m3-card">
+        <span class="m3-label">الأحداث</span>
+        <div class="m3-event-list">
+          <% eventList.slice(0, 12).forEach(event => { %>
+          <div><strong><%= event.name %></strong><span><%= event.description %></span></div>
+          <% }) %>
+          <% if (!eventList.length) { %><div><strong>لا توجد أحداث</strong><span>لم يتم تحميل Event Commands</span></div><% } %>
+        </div>
+      </article>
+      <article class="m3-card">
+        <span class="m3-label">سجلات وتشغيل</span>
+        <pre class="m3-log">RagnarBot-V0 initialized
+Programmer: Saga Sama
+Dashboard: Material 3 RTL
+Database: <%= bot.databaseType %>
+Commands: <%= commandList.length %>
+Threads: <%= managedThreads.length %>
+Session: <%= bot.id !== "غير متصل" ? "online" : "pending" %></pre>
+      </article>
+    </section>
   </section>
 </main>
 
 <script>
-  const threadOptions = {
-    valueNames: ["thread_id", "thread_name", "members"],
-    page: 10,
-    pagination: true
-  };
-  const commandOptions = {
-    valueNames: ["name", "description", "category", "role", "aliases"],
-    page: 12,
-    pagination: true
-  };
+  const threadsList = new List("threads-panel", { valueNames: ["thread_name", "thread_id", "members"], page: 12, pagination: true });
+  const commandsList = new List("commands-panel", { valueNames: ["name", "description", "category", "role", "cooldown", "aliases"], page: 12, pagination: true });
 
-  const listThread = new List("threads-panel", threadOptions);
-  const listCommands = new List("commands-panel", commandOptions);
-  const resetButton = $("#reset-button");
-  const searchInput = $("#search-input");
-  const searchBy = $("#searchBy");
+  $("#thread-search").on("keyup change paste", function() { threadsList.search($(this).val()); });
+  $("#command-search").on("keyup change paste", function() { commandsList.search($(this).val()); });
 
-  $("#search-input, #searchBy").on("keyup change paste", function() {
-    const searchValue = searchInput.val();
-    const searchByValue = searchBy.val();
-    if (searchByValue)
-      listThread.search(searchValue, [searchByValue]);
-    else
-      listThread.search();
-  });
-
-  $("#command-search-input").on("keyup change paste", function() {
-    listCommands.search($(this).val());
-  });
-
-  resetButton.on("click", function() {
-    searchInput.val("");
-    listThread.search();
+  $("#settings-form").on("submit", async function(event) {
+    event.preventDefault();
+    const state = $("#settings-state");
+    state.text("جارٍ الحفظ...");
+    try {
+      const res = await fetch("/dashboard/settings", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" }, body: new URLSearchParams(new FormData(this)) });
+      const data = await res.json();
+      state.text(data.message || "تم الحفظ");
+    } catch (err) {
+      state.text("فشل الحفظ: " + err.message);
+    }
   });
 </script>
 

@@ -1,73 +1,35 @@
-<%~ includeFile("partials/header.eta", {
-	user: user
-}) %>
+<%~ includeFile("partials/header.eta", { user: user }) %>
 <%~ includeFile("partials/message.eta") %>
 
 <% const botOnline = typeof global.botID === "string" && global.botID.length > 0; %>
 <% const totalThreads = global.db.allThreadData.length; %>
 <% const totalUsers = global.db.allUserData.length; %>
 <% const totalCommands = global.GoatBot.commands.size; %>
-<% const botPrefix = global.GoatBot.config.prefix; %>
 
-<main class="heritage-page">
-	<section class="heritage-hero">
-		<div class="container">
-			<div class="heritage-kicker"><% if (botOnline) { %>Messenger system online<% } else { %>Setup required<% } %></div>
-			<div class="heritage-hero-grid">
-				<div>
-					<h1>A quiet command center for GoatBot.</h1>
-					<p>Moderation, thread settings, rank controls, welcome cards, and custom commands in a warm Heritage interface built from the DESIGN.md system.</p>
-					<div class="heritage-cta-row">
-						<a class="heritage-button" href="/dashboard">Open dashboard</a>
-						<a class="heritage-button heritage-button-secondary" href="/stats">View stats</a>
-						<% if (botOnline) { %>
-						<a class="heritage-button heritage-button-secondary" href="https://www.facebook.com/<%= global.botID %>" target="_blank" rel="noopener">Open bot profile</a>
-						<% } %>
-					</div>
-				</div>
-				<div class="heritage-status-card">
-					<span class="heritage-status-dot"></span>
-					<strong><% if (botOnline) { %>Ready to receive messages<% } else { %>Waiting for login<% } %></strong>
-					<small>Prefix <%= botPrefix %> · <%= totalCommands %> commands loaded</small>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<section class="container heritage-section">
-		<div class="heritage-metrics">
-			<article class="heritage-metric-card">
-				<span>Active chats</span>
-				<strong><%= totalThreads %></strong>
-			</article>
-			<article class="heritage-metric-card">
-				<span>Users served</span>
-				<strong><%= totalUsers %></strong>
-			</article>
-			<article class="heritage-metric-card">
-				<span>Commands</span>
-				<strong><%= totalCommands %></strong>
-			</article>
-		</div>
-
-		<div class="heritage-feature-grid">
-			<article class="heritage-feature-card">
-				<span class="heritage-kicker">Moderation</span>
-				<h2>Keep groups composed.</h2>
-				<p>Control admin-only commands, anti-leave behavior, bad-word filtering, and thread permissions without visual noise.</p>
-			</article>
-			<article class="heritage-feature-card">
-				<span class="heritage-kicker">Automation</span>
-				<h2>Shape every welcome.</h2>
-				<p>Edit welcome, leave, rank, and custom command workflows from a dashboard that prioritizes readability.</p>
-			</article>
-			<article class="heritage-feature-card">
-				<span class="heritage-kicker">Operations</span>
-				<h2>Read status at a glance.</h2>
-				<p>Stats, command counts, and thread indexes use compact cards and strong editorial hierarchy.</p>
-			</article>
-		</div>
-	</section>
+<main class="m3-shell" dir="rtl">
+  <aside class="m3-rail">
+    <div class="m3-rail-brand"><span class="m3-logo">R</span><strong>Ragnar</strong></div>
+    <a class="active" href="/dashboard"><i class="fas fa-gauge-high"></i><span>الداشبورد</span></a>
+    <a href="/stats"><i class="fas fa-chart-simple"></i><span>الإحصائيات</span></a>
+  </aside>
+  <section class="m3-content">
+    <section class="m3-hero">
+      <div>
+        <span class="m3-label">RagnarBot-V0</span>
+        <h1>مركز تحكم Saga Sama</h1>
+        <p>واجهة تشغيل عربية Material 3 لإدارة البوت، المجموعات، الأوامر، الحماية، وحالة النظام بدون تسجيل وبدون الواجهة القديمة.</p>
+        <div class="m3-actions">
+          <a class="m3-btn filled" href="/dashboard">فتح لوحة التحكم</a>
+          <a class="m3-btn tonal" href="/stats">الإحصائيات</a>
+        </div>
+      </div>
+      <article class="m3-status-card">
+        <span class="m3-pulse"></span>
+        <h2><% if (botOnline) { %>البوت متصل<% } else { %>بانتظار الاتصال<% } %></h2>
+        <p><%= totalCommands %> أمر · <%= totalThreads %> مجموعة · <%= totalUsers %> مستخدم</p>
+      </article>
+    </section>
+  </section>
 </main>
 
 <%~ includeFile('partials/footer.eta') %>

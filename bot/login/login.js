@@ -68,7 +68,7 @@ function centerText(_0x4f9e3a, _0x5dd3db) {
   const _0x46b4da = " ".repeat(_0x1bd1ec > 0x0 ? _0x1bd1ec : 0x0) + _0x4f9e3a + " ".repeat(_0x55e74f > 0x0 ? _0x55e74f : 0x0);
   console.log(_0x46b4da);
 }
-const titles = [["██████╗  ██████╗  █████╗ ████████╗    ██╗   ██╗██████╗", "██╔════╝ ██╔═══██╗██╔══██╗╚══██╔══╝    ██║   ██║╚════██╗", "██║  ███╗██║   ██║███████║   ██║       ██║   ██║ █████╔╝", "██║   ██║██║   ██║██╔══██║   ██║       ╚██╗ ██╔╝██╔═══╝", "╚██████╔╝╚██████╔╝██║  ██║   ██║        ╚████╔╝ ███████╗", "╚═════╝  ╚═════╝ ╚═╝  ╚═╝   ╚═╝         ╚═══╝  ╚══════╝"], ["█▀▀ █▀█ ▄▀█ ▀█▀  █▄▄ █▀█ ▀█▀  █░█ ▀█", "█▄█ █▄█ █▀█ ░█░  █▄█ █▄█ ░█░  ▀▄▀ █▄"], ["G O A T B O T  V 2 @" + currentVersion], ["GOATBOT V2"]];
+const titles = [["██████╗  █████╗  ██████╗ ███╗   ██╗ █████╗ ██████╗ ", "██╔══██╗██╔══██╗██╔════╝ ████╗  ██║██╔══██╗██╔══██╗", "██████╔╝███████║██║  ███╗██╔██╗ ██║███████║██████╔╝", "██╔══██╗██╔══██║██║   ██║██║╚██╗██║██╔══██║██╔══██╗", "██║  ██║██║  ██║╚██████╔╝██║ ╚████║██║  ██║██║  ██║", "╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═╝"], ["█▀█ ▄▀█ █▀▀ █▄░█ ▄▀█ █▀█", "█▀▄ █▀█ █▄█ █░▀█ █▀█ █▀▄"], ["R A G N A R B O T - V 0 @" + currentVersion], ["RAGNARBOT-V0"]];
 const maxWidth = process.stdout.columns;
 const title = maxWidth > 0x3a ? titles[0x0] : maxWidth > 0x24 ? titles[0x1] : maxWidth > 0x1a ? titles[0x2] : titles[0x3];
 console.log(gradient("#f5af19", "#f12711")(createLine(null, true)));
@@ -77,7 +77,7 @@ for (const text of title) {
   const textColor = gradient("#FA8BFF", "#2BD2FF", "#2BFF88")(text);
   centerText(textColor, text.length);
 }
-let subTitle = "GoatBot V2@" + currentVersion + "- Powered by MOHAMMAD AKASH";
+let subTitle = "RagnarBot-V0@" + currentVersion + " - programmed by Saga Sama";
 const subTitleArray = [];
 if (subTitle.length > maxWidth) {
   while (subTitle.length > maxWidth) {
@@ -98,9 +98,8 @@ for (const t of subTitleArray) {
   const textColor2 = gradient("#9F98E8", '#AFF6CF')(t);
   centerText(textColor2, t.length);
 }
-centerText(gradient('#9F98E8', "#AFF6CF")("Created by NTKhang with ♡"), "Created by NTKhang with ♡".length);
-centerText(gradient('#9F98E8', '#AFF6CF')("Source code: https://github.com/ntkhang03/Goat-Bot-V2"), "Source code: https://github.com/ntkhang03/Goat-Bot-V2".length);
-centerText(gradient("#f5af19", '#f12711')("ALL VERSIONS NOT RELEASED HERE ARE FAKE"), "ALL VERSIONS NOT RELEASED HERE ARE FAKE".length);
+centerText(gradient('#9F98E8', "#AFF6CF")("Programmer: Saga Sama"), "Programmer: Saga Sama".length);
+centerText(gradient('#9F98E8', '#AFF6CF')("RagnarBot-V0 Control Runtime"), "RagnarBot-V0 Control Runtime".length);
 let widthConsole = process.stdout.columns;
 if (widthConsole > 0x32) {
   widthConsole = 0x32;
@@ -773,8 +772,8 @@ async function startBot(_0x3cad9e) {
       log.master("NOTIFICATION", (_0x4d48d2 || '').trim());
       log.master("SUCCESS", getText("login", "runBot"));
       log.master("LOAD TIME", '' + convertTime(Date.now() - global.GoatBot.startTime));
-      logColor('#f5ab00', createLine("COPYRIGHT"));
-      console.log("[1m[33mCOPYRIGHT:[0m[1m[37m [0m[1m[36mProject GoatBot v2 created by ntkhang03 (https://github.com/ntkhang03), please do not sell this source code or claim it as your own. Thank you![0m");
+      logColor('#f5ab00', createLine("RAGNARBOT-V0"));
+      console.log("\x1b[36mRagnarBot-V0 programmed by Saga Sama.\x1b[0m");
       logColor("#f5ab00", character);
       global.GoatBot.config.adminBot = _0x5a9173;
       writeFileSync(global.client.dirConfig, JSON.stringify(global.GoatBot.config, null, 0x2));

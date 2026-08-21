@@ -12,7 +12,7 @@
   "antiInbox": false,
   "language": "en",
   "notesLanguage": "change language using ISO 639-1 code",
-  "nickNameBot": "—͞ 𝐐𝐔𝐄𝐄𝐍 🎀❤️‍🩹",
+  "nickNameBot": "RagnarBot-V0",
   "prefix": "/",
   "noPrefix": {
     "enable": false,
@@ -157,5 +157,9 @@
     "autoMarkDelivery": false,
     "autoReconnect": true,
     "notes": "Docs: https://github.com/ntkhang03/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions"
+  },
+  "brand": {
+    "name": "RagnarBot-V0",
+    "programmer": "Saga Sama"
   }
 }
