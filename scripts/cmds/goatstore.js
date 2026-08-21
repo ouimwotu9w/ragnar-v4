@@ -511,7 +511,10 @@ module.exports = {
         "{pn} sync — Manual sync\n" +
         "{pn} delete <id> <secret> — Delete"
     },
-    autoSync: true
+    // Keep startup quiet by default. The remote MiraiStore backend currently
+    // depends on MongoDB and can emit one error per local command when its
+    // MONGODB_URI is unavailable. Manual `goatstore sync` still works if needed.
+    autoSync: false
   },
 
   onLoad: function () {
