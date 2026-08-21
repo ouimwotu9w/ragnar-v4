@@ -2,103 +2,212 @@
 	user: user
 }); %>
 <%~ includeFile("partials/message.eta"); %>
-<%~ includeFile("partials/title.eta", {
-	icon: "fas fa-cog",
-	title: "Dashboard"
-}); %>
 
-<style>
-  .table>:not(caption)>*>* {
-    padding: 0.5rem 0.5rem;
-  }
-</style>
+<%
+const managedThreads = threads || [];
+const commandList = commands || [];
+const eventList = events || [];
+const totalMembers = managedThreads.reduce((sum, thread) => sum + ((thread.members || []).filter(member => member.inGroup).length), 0);
+const categories = [...new Set(commandList.map(command => command.category || "uncategorized"))].sort();
+const uptimeSeconds = Math.floor((bot && bot.uptime) || 0);
+const uptimeHours = Math.floor(uptimeSeconds / 3600);
+const uptimeMinutes = Math.floor((uptimeSeconds % 3600) / 60);
+%>
 
-<div class="container">
-
-  <h3>Danh sách nhóm mà bạn quản lý</h3>
-
-  <div class="d-sm-flex d-block align-items-center my-3">
-    <div class="search-box me-2">
-      <input class="form-control search-input search" type="search" placeholder="Type to search" aria-label="Search" id="search-input">
-      <span class="fas fa-search search-box-icon" aria-hidden="true"></span>
+<main class="heritage-page">
+  <section class="heritage-hero heritage-dashboard-hero">
+    <div class="container">
+      <div class="heritage-kicker">No-login operations dashboard</div>
+      <div class="heritage-hero-grid">
+        <div>
+          <h1>Everything Ragnar needs, in one clean control room.</h1>
+          <p>No registration wall, no old dashboard flow. This panel opens directly and gives you bot health, command inventory, thread visibility, runtime details, and quick operational actions.</p>
+          <div class="heritage-cta-row">
+            <a class="heritage-button" href="#threads-panel">Manage threads</a>
+            <a class="heritage-button heritage-button-secondary" href="#commands-panel">Browse commands</a>
+            <a class="heritage-button heritage-button-secondary" href="/stats">System stats</a>
+          </div>
+        </div>
+        <div class="heritage-status-card">
+          <span class="heritage-status-dot"></span>
+          <strong><%= bot.id !== "Not connected" ? "Messenger session online" : "Waiting for Messenger login" %></strong>
+          <small>ID <%= bot.id %> · uptime <%= uptimeHours %>h <%= uptimeMinutes %>m</small>
+        </div>
+      </div>
     </div>
-    <div class="d-flex">
-      <select class="form-select w-auto me-2 mt-2 mt-sm-0" id="searchBy" aria-label="Search By">
-        <option value="thread_id" selected="selected">Box Id</option>
-        <option value="thread_name">Box Name</option>
-      </select>
-      <button class="btn btn-phoenix-primary text-nowrap mt-2 mt-sm-0" id="reset-button">
-        <i class="fas fa-sync"></i>
-        Reset
-      </button>
+  </section>
+
+  <section class="container heritage-section">
+    <div class="heritage-metrics heritage-metrics-wide">
+      <article class="heritage-metric-card">
+        <span>Threads</span>
+        <strong><%= managedThreads.length %></strong>
+      </article>
+      <article class="heritage-metric-card">
+        <span>Active members</span>
+        <strong><%= totalMembers %></strong>
+      </article>
+      <article class="heritage-metric-card">
+        <span>Commands</span>
+        <strong><%= commandList.length %></strong>
+      </article>
+      <article class="heritage-metric-card">
+        <span>Events</span>
+        <strong><%= eventList.length %></strong>
+      </article>
     </div>
-  </div>
 
-  <div data-list="" class="table-responsive" id="table-threads">
-    <table class="table table-bordered table-striped align-middle">
-      <thead>
-        <tr>
-          <th></th>
-          <th class="sort" data-sort="thread_id">Box ID</th>
-          <th class="sort" data-sort="thread_name">Box Name</th>
-          <th class="sort" data-sort="members">Members</th>
-          <th>Action</th>
-        </tr>
-      </thead>
+    <div class="heritage-ops-grid">
+      <article class="heritage-panel heritage-mini-panel">
+        <span class="heritage-kicker">Bot profile</span>
+        <dl class="heritage-definition-list">
+          <div><dt>Nickname</dt><dd><%= bot.nickName || "Not set" %></dd></div>
+          <div><dt>Prefix</dt><dd><code><%= bot.prefix %></code></dd></div>
+          <div><dt>Language</dt><dd><%= bot.language %></dd></div>
+          <div><dt>Database</dt><dd><%= bot.databaseType %></dd></div>
+        </dl>
+      </article>
 
-      <tbody class="list">
-        <% for (let i=0; i < threads.length; i++) { %>
-        <tr>
-          <td class="ps-2">
-            <%= i + 1 %>
-          </td>
-          <td class="thread_id">
-            <%= threads[i].threadID %>
-          </td>
-          <td class="thread_name">
-            <%= threads[i].threadName || "null" %>
-          </td>
-          <td class="members">
-            <%= threads[i].members.filter(m=> m.inGroup).length %>
-          </td>
-          <td>
-            <a href='/dashboard/<%=threads[i].threadID %>' class='btn btn-phoenix-primary'>
-              <i class="fa-solid fa-wrench"></i>
-            </a>
-          </td>
-        </tr>
-        <% } %>
-      </tbody>
-    </table>
-    <ul class="pagination"></ul>
-  </div>
+      <article class="heritage-panel heritage-mini-panel">
+        <span class="heritage-kicker">Quick actions</span>
+        <div class="heritage-action-list">
+          <a href="/stats"><i class="fas fa-chart-simple"></i><span>Open detailed stats</span></a>
+          <a href="/uptime"><i class="fas fa-signal"></i><span>Check uptime endpoint</span></a>
+          <a href="/refresh-cookies"><i class="fas fa-rotate"></i><span>Refresh cookies manually</span></a>
+        </div>
+      </article>
 
-  <script>
-    const options = {
-      valueNames: ["thread_id", "thread_name", "members"],
-      page: 10,
-      pagination: true
-    };
+      <article class="heritage-panel heritage-mini-panel">
+        <span class="heritage-kicker">Command categories</span>
+        <div class="heritage-chip-list">
+          <% if (!categories.length) { %>
+          <span>No commands loaded</span>
+          <% } %>
+          <% categories.forEach(category => { %>
+          <span><%= category %></span>
+          <% }) %>
+        </div>
+      </article>
+    </div>
 
-    const listThread = new List("table-threads", options);
+    <div class="heritage-panel heritage-dashboard-panel" id="threads-panel" data-list="">
+      <div class="heritage-panel-head">
+        <div>
+          <span class="heritage-kicker">Thread index</span>
+          <h2>Groups and member counts</h2>
+        </div>
+        <div class="heritage-tools">
+          <div class="heritage-search">
+            <i class="fas fa-search"></i>
+            <input class="search" type="search" placeholder="Search threads" aria-label="Search threads" id="search-input">
+          </div>
+          <select id="searchBy" aria-label="Search by">
+            <option value="thread_id" selected>Box ID</option>
+            <option value="thread_name">Box name</option>
+          </select>
+          <button class="heritage-button heritage-button-secondary" id="reset-button" type="button">Reset</button>
+        </div>
+      </div>
 
-    const resetButton = $("#reset-button");
-    const searchInput = $("#search-input");
-    const searchBy = $("#searchBy");
+      <div class="heritage-table-wrap">
+        <table class="heritage-table">
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th class="sort" data-sort="thread_id">Box ID</th>
+              <th class="sort" data-sort="thread_name">Box name</th>
+              <th class="sort" data-sort="members">Members</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody class="list">
+            <% for (let i = 0; i < managedThreads.length; i++) { %>
+            <% const memberCount = (managedThreads[i].members || []).filter(member => member.inGroup).length; %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td class="thread_id"><code><%= managedThreads[i].threadID %></code></td>
+              <td class="thread_name"><%= managedThreads[i].threadName || "Untitled thread" %></td>
+              <td class="members"><%= memberCount %></td>
+              <td><span class="heritage-badge"><%= memberCount > 0 ? "Active" : "Empty" %></span></td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      <ul class="pagination heritage-pagination"></ul>
+    </div>
 
-    $("#search-input, #searchBy").on("keyup change paste", function(e) {
-      const searchValue = searchInput.val();
-      const searchByValue = searchBy.val();
-      if (searchByValue)
-        listThread.search(searchValue, [searchByValue]);
-      else
-        listThread.search();
-    });
+    <div class="heritage-panel heritage-dashboard-panel" id="commands-panel" data-list="">
+      <div class="heritage-panel-head">
+        <div>
+          <span class="heritage-kicker">Command inventory</span>
+          <h2>Loaded commands</h2>
+        </div>
+        <div class="heritage-tools">
+          <div class="heritage-search">
+            <i class="fas fa-search"></i>
+            <input class="search" type="search" placeholder="Search commands" aria-label="Search commands" id="command-search-input">
+          </div>
+        </div>
+      </div>
 
-    resetButton.on("click", function(e) {
-      searchInput.val("");
+      <div class="heritage-command-grid list">
+        <% commandList.forEach(command => { %>
+        <article class="heritage-command-card">
+          <div>
+            <span class="category"><%= command.category %></span>
+            <h3 class="name"><%= command.name %></h3>
+            <p class="description"><%= command.description %></p>
+          </div>
+          <div class="heritage-command-meta">
+            <span>Role <span class="role"><%= command.role %></span></span>
+            <% if (command.aliases.length) { %>
+            <span class="aliases"><%= command.aliases.join(", ") %></span>
+            <% } %>
+          </div>
+        </article>
+        <% }) %>
+      </div>
+      <ul class="pagination heritage-pagination"></ul>
+    </div>
+  </section>
+</main>
+
+<script>
+  const threadOptions = {
+    valueNames: ["thread_id", "thread_name", "members"],
+    page: 10,
+    pagination: true
+  };
+  const commandOptions = {
+    valueNames: ["name", "description", "category", "role", "aliases"],
+    page: 12,
+    pagination: true
+  };
+
+  const listThread = new List("threads-panel", threadOptions);
+  const listCommands = new List("commands-panel", commandOptions);
+  const resetButton = $("#reset-button");
+  const searchInput = $("#search-input");
+  const searchBy = $("#searchBy");
+
+  $("#search-input, #searchBy").on("keyup change paste", function() {
+    const searchValue = searchInput.val();
+    const searchByValue = searchBy.val();
+    if (searchByValue)
+      listThread.search(searchValue, [searchByValue]);
+    else
       listThread.search();
-    });
-  </script>
+  });
 
-  <%~ includeFile("partials/footer.eta") %>
+  $("#command-search-input").on("keyup change paste", function() {
+    listCommands.search($(this).val());
+  });
+
+  resetButton.on("click", function() {
+    searchInput.val("");
+    listThread.search();
+  });
+</script>
+
+<%~ includeFile("partials/footer.eta") %>

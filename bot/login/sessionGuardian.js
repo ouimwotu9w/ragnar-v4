@@ -49,6 +49,27 @@ async function readCurrentAppState(api, dirAccount) {
 	return JSON.parse(raw);
 }
 
+function isApiSessionHealthy(api) {
+	if (!api)
+		return false;
+
+	try {
+		if (typeof api.getCurrentUserID === "function") {
+			const currentUserID = api.getCurrentUserID();
+			if (currentUserID && String(currentUserID) === String(global.botID || currentUserID))
+				return true;
+		}
+
+		// If MQTT/listen already logged in successfully, a failing mbasic settings
+		// probe should not force a relogin. Facebook often blocks or changes that
+		// page while the Messenger session itself is still valid.
+		return typeof api.listen === "function" || typeof api.listenMqtt === "function";
+	}
+	catch (e) {
+		return false;
+	}
+}
+
 /**
  * @param {{ api: object }} ctx
  * @returns {boolean} true if the guardian started, false if skipped (no creds)
@@ -82,6 +103,11 @@ module.exports = async function ({ api }) {
 			return;
 		running = true;
 		try {
+			if (isApiSessionHealthy(api)) {
+				log.info("SESSION GUARDIAN", "Live Messenger API session is healthy ✅ (next check in " + intervalMinutes + " min)");
+				return;
+			}
+
 			const appState = await readCurrentAppState(api, dirAccount);
 			const cookie = buildCookieString(appState);
 			const alive = await checkLiveCookie(cookie, fbAccount.userAgent);

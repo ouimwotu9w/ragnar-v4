@@ -53,26 +53,42 @@ module.exports = async (api) => {
 	const OAuth2 = google.auth.OAuth2;
 	const OAuth2_client = new OAuth2(clientId, clientSecret);
 	OAuth2_client.setCredentials({ refresh_token: refreshToken });
+	const dashboardMailDisabledMessage = getText("app", "googleApiRefreshTokenExpired");
 	let accessToken;
-	try {
-		accessToken = await OAuth2_client.getAccessToken();
+	let transporter;
+	if (!refreshToken || !refreshToken.trim()) {
+		utils.log.warn("DASHBOARD", `${dashboardMailDisabledMessage} Dashboard email features are disabled, but the dashboard will still open.`);
 	}
-	catch (err) {
-		throw new Error(getText("Goat", "googleApiRefreshTokenExpired"));
+	else {
+		try {
+			accessToken = await OAuth2_client.getAccessToken();
+		}
+		catch (err) {
+			utils.log.warn("DASHBOARD", `${dashboardMailDisabledMessage} Dashboard email features are disabled, but the dashboard will still open.`);
+		}
 	}
 
-	const transporter = nodemailer.createTransport({
-		host: "smtp.gmail.com",
-		service: "Gmail",
-		auth: {
-			type: "OAuth2",
-			user: email,
-			clientId,
-			clientSecret,
-			refreshToken,
-			accessToken
-		}
-	});
+	if (accessToken) {
+		transporter = nodemailer.createTransport({
+			host: "smtp.gmail.com",
+			service: "Gmail",
+			auth: {
+				type: "OAuth2",
+				user: email,
+				clientId,
+				clientSecret,
+				refreshToken,
+				accessToken
+			}
+		});
+	}
+	else {
+		transporter = {
+			sendMail: async () => {
+				throw new Error(dashboardMailDisabledMessage);
+			}
+		};
+	}
 
 
 	const {
@@ -191,8 +207,6 @@ module.exports = async (api) => {
 		imageExt, videoExt, audioExt, convertSize, drive, usersData
 	};
 
-	const registerRoute = require("./routes/register.js")(paramsForRoutes);
-	const loginRoute = require("./routes/login.js")(paramsForRoutes);
 	const forgotPasswordRoute = require("./routes/forgotPassword.js")(paramsForRoutes);
 	const changePasswordRoute = require("./routes/changePassword.js")(paramsForRoutes);
 	const dashBoardRoute = require("./routes/dashBoard.js")(paramsForRoutes);
@@ -318,8 +332,10 @@ module.exports = async (api) => {
 		}
 	});
 
-	app.use("/register", registerRoute);
-	app.use("/login", loginRoute);
+	// The new operations dashboard is intentionally no-login/no-register.
+	// Keep these legacy endpoints from showing the old account flow.
+	app.use("/register", (req, res) => res.redirect("/dashboard"));
+	app.use("/login", (req, res) => res.redirect("/dashboard"));
 	app.use("/forgot-password", forgotPasswordRoute);
 	app.use("/change-password", changePasswordRoute);
 	app.use("/dashboard", dashBoardRoute);
