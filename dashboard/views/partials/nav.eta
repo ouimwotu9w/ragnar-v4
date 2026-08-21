@@ -1,8 +1,8 @@
 <nav class="heritage-nav fixed-top">
   <div class="container heritage-nav-inner">
-    <a class="heritage-brand" href="/" aria-label="GoatBot home">
+    <a class="heritage-brand" href="/dashboard" aria-label="GoatBot dashboard">
       <img src="/images/logo-non-bg.png" height="36" width="36" alt="GoatBot logo">
-      <span>GoatBot</span>
+      <span>Ragnar Control</span>
     </a>
 
     <button class="heritage-nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#navcollapse" aria-controls="navcollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,34 +11,13 @@
 
     <div class="collapse navbar-collapse heritage-nav-collapse" id="navcollapse">
       <ul class="heritage-nav-links">
-        <li><a href="/dashboard"><i class="fas fa-table-columns"></i> Dashboard</a></li>
+        <li><a href="/dashboard"><i class="fas fa-table-columns"></i> Control</a></li>
         <li><a href="/stats"><i class="fas fa-chart-simple"></i> Stats</a></li>
-        <li><a href="/donate"><i class="fas fa-heart"></i> Donate</a></li>
-        <% if (user && user.facebookUserID && global.GoatBot.config.adminBot.includes(user.facebookUserID)) { %>
-        <li><a href="/refresh-cookies"><i class="fas fa-rotate"></i> Refresh cookies</a></li>
-        <% } %>
+        <li><a href="/uptime"><i class="fas fa-signal"></i> Uptime</a></li>
       </ul>
 
       <ul class="heritage-nav-actions">
-        <% if (user) { %>
-        <li class="nav-item dropdown">
-          <a class="heritage-user dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" id="userDropdown" aria-expanded="false">
-            <i class="fas fa-user"></i>
-            <%= user.name %>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end heritage-menu" aria-labelledby="userDropdown">
-            <% if (!user.facebookUserID) { %>
-            <li><a href="/verifyfbid" class="dropdown-item"><i class="fas fa-user-check"></i> Verify Facebook ID</a></li>
-            <% } %>
-            <li><a href="/profile" class="dropdown-item"><i class="fas fa-user-circle"></i> Profile</a></li>
-            <li><a href="/change-password" class="dropdown-item"><i class="fas fa-key"></i> Change password</a></li>
-            <li><a href="/logout" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-          </ul>
-        </li>
-        <% } else { %>
-        <li><a class="heritage-link" href="/login">Login</a></li>
-        <li><a class="heritage-button" href="/register">Register</a></li>
-        <% } %>
+        <li><a class="heritage-button" href="/dashboard">Open panel</a></li>
       </ul>
     </div>
   </div>

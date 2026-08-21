@@ -207,8 +207,6 @@ module.exports = async (api) => {
 		imageExt, videoExt, audioExt, convertSize, drive, usersData
 	};
 
-	const registerRoute = require("./routes/register.js")(paramsForRoutes);
-	const loginRoute = require("./routes/login.js")(paramsForRoutes);
 	const forgotPasswordRoute = require("./routes/forgotPassword.js")(paramsForRoutes);
 	const changePasswordRoute = require("./routes/changePassword.js")(paramsForRoutes);
 	const dashBoardRoute = require("./routes/dashBoard.js")(paramsForRoutes);
@@ -334,8 +332,10 @@ module.exports = async (api) => {
 		}
 	});
 
-	app.use("/register", registerRoute);
-	app.use("/login", loginRoute);
+	// The new operations dashboard is intentionally no-login/no-register.
+	// Keep these legacy endpoints from showing the old account flow.
+	app.use("/register", (req, res) => res.redirect("/dashboard"));
+	app.use("/login", (req, res) => res.redirect("/dashboard"));
 	app.use("/forgot-password", forgotPasswordRoute);
 	app.use("/change-password", changePasswordRoute);
 	app.use("/dashboard", dashBoardRoute);
