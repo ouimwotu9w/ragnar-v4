@@ -5,13 +5,13 @@ const https = require("https");
 module.exports = {
   config: {
     name: "help",
-    aliases: ["menu", "commands"],
+    aliases: ["menu", "commands", "اوامر", "أوامر", "مساعدة", "مساعده"],
     version: "6.4",
     author: "EryXenX",
-    shortDescription: "Show all commands",
-    longDescription: "Show all commands in clean UI",
+    shortDescription: "عرض قائمة أوامر البوت",
+    longDescription: "يعرض أوامر البوت المتاحة وطريقة استخدام كل أمر.",
     category: "system",
-    guide: "{pn}help [command name]"
+    guide: "{pn} [اسم الأمر]"
   },
 
   onStart: async function ({ message, args, prefix }) {
@@ -53,8 +53,8 @@ module.exports = {
 
       if (!cmd)
         return message.reply(
-`❌ ${fancyFont(`Command '${cmdName}' not found!`)}
-➤ Try ${prefix}help to see full list`
+`❌ لم يتم العثور على الأمر «${cmdName}».
+➤ اكتب ${prefix}اوامر لعرض القائمة الكاملة.`
         );
 
       const usage = typeof cmd.config.guide === "string"
@@ -63,16 +63,16 @@ module.exports = {
 
       const infoMsg =
 `┏━━━━━━━━━━━━━┓
- 🧩 𝐂𝐌𝐃 𝐈𝐍𝐅𝐎
+ 🧩 معلومات الأمر
 ┗━━━━━━━━━━━━━┛
- ✦ Name     : ${cmd.config.name}
- ✦ Aliases  : ${cmd.config.aliases?.join(", ") || "None"}
- ✦ Category : ${categoryFont((cmd.config.category || "Others").toUpperCase())}
- ✦ Version  : v${cmd.config.version || "1.0"}
- ✦ Author   : ${cmd.config.author || "Unknown"}
- ✦ Usage    : ${prefix}${usage}
+ ✦ الاسم        : ${cmd.config.name}
+ ✦ الاختصارات  : ${cmd.config.aliases?.join(", ") || "لا يوجد"}
+ ✦ التصنيف      : ${categoryFont((cmd.config.category || "others").toUpperCase())}
+ ✦ الإصدار      : v${cmd.config.version || "1.0"}
+ ✦ المطور       : ${cmd.config.author || "غير معروف"}
+ ✦ الاستخدام    : ${prefix}${usage}
 ━━━━━━━━━━━━━━━
- 📝 ${(cmd.config.longDescription || cmd.config.shortDescription || "No description")}`;
+ 📝 ${(cmd.config.longDescription || cmd.config.shortDescription || "لا يوجد وصف.")}`;
 
       return message.reply(infoMsg);
     }
@@ -86,10 +86,10 @@ module.exports = {
     }
 
     let msg =
-`╭─ 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒 𝐌𝐄𝐍𝐔
-├ Prefix : ${prefix}
-├ Total  : ${allCommands.size}
-├ Author : EryXenX\n`;
+`╭─ قائمة أوامر Ragnar
+├ البادئة : ${prefix}
+├ عدد الأوامر : ${allCommands.size}
+├ المطور : EryXenX\n`;
 
     for (const cat of Object.keys(categories).sort()) {
       const catTitle = categoryFont(cat.toUpperCase());
@@ -100,7 +100,7 @@ module.exports = {
       msg += `└─────────────┘\n`;
     }
 
-    msg += `\n╰─ Use: ${prefix}help <command>`;
+    msg += `\n╰─ للاطلاع على تفاصيل أمر: ${prefix}اوامر <اسم الأمر>`;
 
     const gifURLs = [
       "https://i.imgur.com/Xw6JTfn.gif",
