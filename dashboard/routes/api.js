@@ -127,7 +127,7 @@ module.exports = function ({ isAuthenticated, isVeryfiUserIDFacebook, checkHasAn
 						message: "type illegal"
 					});
 
-				if (!checkAuthConfigDashboardOfThread(threadID, userID))
+				if (!(await checkAuthConfigDashboardOfThread(threadID, userID)))
 					return res.status(400).json({
 						status: "error",
 						error: "PERMISSION_DENIED",
@@ -252,68 +252,88 @@ module.exports = function ({ isAuthenticated, isVeryfiUserIDFacebook, checkHasAn
 			}
 		)
 
-		.post("/thread/setData/:slug", [isAuthenticated, isVeryfiUserIDFacebook, checkHasAndInThread, apiLimiter], async function (req, res) {
-			const { slug } = req.params;
-			const { threadID, type } = req.body;
-			if (!checkAuthConfigDashboardOfThread(threadID, req.user.facebookUserID))
-				return res.status(400).json({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Bạn không có quyền chỉnh sửa dữ liệu trong nhóm này"
-				});
-			const threadData = await threadsData.get(threadID);
-			try {
-				switch (slug) {
-					case "welcomeAttachment":
-					case "leaveAttachment": {
-						const { attachmentIDs } = req.body;
-						if (!threadData.data[slug])
-							threadData.data[slug] = [];
-						if (type === "add")
-							threadData.data[slug].push(...attachmentIDs);
-						else if (type === "delete")
-							threadData.data[slug] = threadData.data[slug].filter(item => !attachmentIDs.includes(item));
-						break;
-					}
-					case "welcomeMessage":
-					case "leaveMessage": {
-						const { message } = req.body;
-						if (type === "update")
-							threadData.data[slug] = message;
-						else
-							delete threadData.data[slug];
-						break;
-					}
-					case "settings": {
-						const { updateData } = req.body;
-						for (const key in updateData)
-							threadData.settings[key] = updateData[key] == "true";
-						break;
+			.post("/thread/setData/:slug", [isAuthenticated, isVeryfiUserIDFacebook, checkHasAndInThread, apiLimiter], async function (req, res) {
+				const { slug } = req.params;
+				const { threadID, type } = req.body;
+				if (!(await checkAuthConfigDashboardOfThread(threadID, req.user.facebookUserID)))
+					return res.status(403).json({
+						status: "error",
+						error: "PERMISSION_DENIED",
+						message: "ليس لديك صلاحية تعديل بيانات هذه المجموعة."
+					});
+
+				const threadData = await threadsData.get(threadID);
+				if (!threadData)
+					return res.status(404).json({ status: "error", error: "THREAD_NOT_FOUND", message: "المجموعة غير موجودة." });
+
+				try {
+					threadData.data = threadData.data || {};
+					threadData.settings = threadData.settings || {};
+					switch (slug) {
+						case "welcomeAttachment":
+						case "leaveAttachment": {
+							const attachmentIDs = Array.isArray(req.body.attachmentIDs) ? req.body.attachmentIDs : [];
+							if (!threadData.data[slug]) threadData.data[slug] = [];
+							if (type === "add") threadData.data[slug].push(...attachmentIDs);
+							else if (type === "delete") threadData.data[slug] = threadData.data[slug].filter(item => !attachmentIDs.includes(item));
+							break;
+						}
+						case "welcomeMessage":
+						case "leaveMessage": {
+							const { message } = req.body;
+							if (type === "update") threadData.data[slug] = String(message || "");
+							else delete threadData.data[slug];
+							break;
+						}
+						case "settings": {
+							const allowedSettings = ["sendWelcomeMessage", "sendLeaveMessage", "sendRankupMessage", "customCommand", "badWords", "hideNotiMessage"];
+							const updateData = req.body.updateData || {};
+							for (const key of allowedSettings) {
+								if (Object.prototype.hasOwnProperty.call(updateData, key)) {
+									threadData.settings[key] = updateData[key] === true || updateData[key] === "true";
+								}
+							}
+							break;
+						}
+						case "groupData": {
+							const lang = req.body.updateData?.lang;
+							if (!['ar', 'en', 'vi', 'bn', 'hi', 'tl'].includes(lang)) throw new Error("INVALID_LANGUAGE");
+							threadData.data.lang = lang;
+							break;
+						}
+						case "memberPermissions": {
+							if (!threadData.adminIDs?.includes(req.user.facebookUserID)) throw new Error("GROUP_ADMIN_REQUIRED");
+							const permissions = typeof req.body.permissions === "string" ? JSON.parse(req.body.permissions) : req.body.permissions;
+							if (!permissions || typeof permissions !== "object" || Array.isArray(permissions)) throw new Error("INVALID_PERMISSIONS");
+							for (const member of threadData.members || []) {
+								if (!member.inGroup || threadData.adminIDs?.includes(member.userID)) continue;
+								if (Object.prototype.hasOwnProperty.call(permissions, member.userID)) {
+									member.permissionConfigDashboard = permissions[member.userID] === true || permissions[member.userID] === "true";
+								}
+							}
+							break;
+						}
+						default:
+							return res.status(400).json({ status: "error", error: "INVALID_SETTING", message: "نوع الإعداد غير مسموح." });
 					}
 				}
-			}
-			catch (err) {
-				return res.status(400).send({
-					status: "error",
-					error: "SERVER_ERROR",
-					message: "Đã có lỗi xảy ra, vui lòng thử lại sau"
-				});
-			}
+				catch (err) {
+					const messages = {
+						INVALID_LANGUAGE: "رمز اللغة غير صالح.",
+						GROUP_ADMIN_REQUIRED: "إدارة صلاحيات الأعضاء متاحة لمشرفي المجموعة فقط.",
+						INVALID_PERMISSIONS: "بيانات الصلاحيات غير صالحة."
+					};
+					return res.status(400).json({ status: "error", error: err.message || "SERVER_ERROR", message: messages[err.message] || "تعذر حفظ الإعداد. حاول مرة أخرى." });
+				}
 
-			try {
-				await threadsData.set(threadID, threadData);
-				res.json({
-					status: "success"
-				});
-			}
-			catch (e) {
-				res.status(500).json({
-					status: "error",
-					error: "FAILED_TO_SAVE_DATA",
-					message: "Đã có lỗi xảy ra, vui lòng thử lại sau"
-				});
-			}
-		})
+				try {
+					await threadsData.set(threadID, threadData);
+					res.json({ status: "success" });
+				}
+				catch (_) {
+					res.status(500).json({ status: "error", error: "FAILED_TO_SAVE_DATA", message: "تعذر حفظ البيانات في قاعدة البيانات." });
+				}
+			})
 		.get("/getUserData", [isAuthenticated, isVeryfiUserIDFacebook], async (req, res) => {
 			const uid = req.params.userID || req.user.facebookUserID;
 			if (req.params.userID) {

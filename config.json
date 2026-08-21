@@ -10,7 +10,7 @@
     "notes": "Automatically retrieves new cookies every x minutes. Recommended: 1440 (1 day)."
   },
   "antiInbox": false,
-  "language": "en",
+  "language": "ar",
   "notesLanguage": "change language using ISO 639-1 code",
   "nickNameBot": "—͞ 𝐐𝐔𝐄𝐄𝐍 🎀❤️‍🩹",
   "prefix": "/",
@@ -24,8 +24,7 @@
   },
   "adminBot": [
     "61583835186508",
-    " ",
-    " "
+    "61585972314878"
   ],
   "reactUnsend": {
     "enable": true,

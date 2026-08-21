@@ -1,104 +1,155 @@
-<%~ includeFile("partials/header.eta", {
-	user: user
-}); %>
+<%~ includeFile("partials/header.eta", { user: user }); %>
 <%~ includeFile("partials/message.eta"); %>
-<%~ includeFile("partials/title.eta", {
-	icon: "fas fa-cog",
-	title: "Dashboard"
-}); %>
+<%
+  const formatUptime = (seconds) => {
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    return `${days} يوم ${hours} س ${minutes} د`;
+  };
+  const enabledForThread = (settings = {}) => ["sendWelcomeMessage", "sendLeaveMessage", "sendRankupMessage", "customCommand", "badWords", "hideNotiMessage"].filter(key => settings[key] === true).length;
+%>
 
-<style>
-  .table>:not(caption)>*>* {
-    padding: 0.5rem 0.5rem;
-  }
-</style>
+<section class="ragnar-page-head">
+  <div>
+    <p class="ragnar-kicker"><i class="fa-solid fa-circle-check ms-1"></i> متصل بالبيانات الحالية</p>
+    <h1 class="ragnar-page-title">مرحبًا <%= user.name %>، هذه مساحة إدارة البوت</h1>
+    <p class="ragnar-page-description mb-0">تابع مجموعاتك وعدّل الإعدادات المتاحة فعليًا في البوت من مكان واحد.</p>
+  </div>
+  <a href="/stats" class="btn btn-ragnar-ghost"><i class="fa-solid fa-heart-pulse ms-1"></i> حالة البوت</a>
+</section>
 
-<div class="container">
-
-  <h3>Danh sách nhóm mà bạn quản lý</h3>
-
-  <div class="d-sm-flex d-block align-items-center my-3">
-    <div class="search-box me-2">
-      <input class="form-control search-input search" type="search" placeholder="Type to search" aria-label="Search" id="search-input">
-      <span class="fas fa-search search-box-icon" aria-hidden="true"></span>
+<section class="ragnar-hero mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <p class="ragnar-kicker text-white-50">مركز Ragnar للتحكم</p>
+      <h2 class="h3 fw-bold mb-2 text-white">إعدادات دقيقة، وليست واجهة شكلية.</h2>
+      <p class="mb-0 text-white-50" style="max-width: 46rem; line-height: 1.9; font-size: .86rem;">تتصل كل بطاقة بمجموعة محفوظة في قاعدة البيانات. يمكنك تشغيل الرسائل التلقائية، ضبط الترحيب والمغادرة، وإدارة من يسمح لهم بتعديل الإعدادات.</p>
     </div>
-    <div class="d-flex">
-      <select class="form-select w-auto me-2 mt-2 mt-sm-0" id="searchBy" aria-label="Search By">
-        <option value="thread_id" selected="selected">Box Id</option>
-        <option value="thread_name">Box Name</option>
-      </select>
-      <button class="btn btn-phoenix-primary text-nowrap mt-2 mt-sm-0" id="reset-button">
-        <i class="fas fa-sync"></i>
-        Reset
-      </button>
+    <div class="col-lg-4">
+      <div class="ragnar-info-grid">
+        <div class="ragnar-info-item">
+          <div class="ragnar-info-label">بادئة البوت</div>
+          <div class="ragnar-info-value" dir="ltr"><%= dashboardStats.prefix %></div>
+        </div>
+        <div class="ragnar-info-item">
+          <div class="ragnar-info-label">لغة الرسائل</div>
+          <div class="ragnar-info-value"><%= dashboardStats.language === "ar" ? "العربية" : dashboardStats.language %></div>
+        </div>
+        <div class="ragnar-info-item">
+          <div class="ragnar-info-label">وقت التشغيل</div>
+          <div class="ragnar-info-value"><%= formatUptime(dashboardStats.uptimeSeconds) %></div>
+        </div>
+        <div class="ragnar-info-item">
+          <div class="ragnar-info-label">الأوامر المثبتة</div>
+          <div class="ragnar-info-value"><%= dashboardStats.commandCount %> أمر</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="row g-3 mb-4" aria-label="ملخص الحالة">
+  <div class="col-6 col-lg-3">
+    <article class="ragnar-card ragnar-stat-card">
+      <span class="ragnar-stat-icon"><i class="fa-solid fa-users"></i></span>
+      <p class="ragnar-stat-label">المجموعات المتاحة</p>
+      <div class="ragnar-stat-value"><%= dashboardStats.groupCount %></div>
+    </article>
+  </div>
+  <div class="col-6 col-lg-3">
+    <article class="ragnar-card ragnar-stat-card">
+      <span class="ragnar-stat-icon cyan"><i class="fa-solid fa-user-group"></i></span>
+      <p class="ragnar-stat-label">إجمالي الأعضاء</p>
+      <div class="ragnar-stat-value"><%= dashboardStats.memberCount.toLocaleString("ar-EG") %></div>
+    </article>
+  </div>
+  <div class="col-6 col-lg-3">
+    <article class="ragnar-card ragnar-stat-card">
+      <span class="ragnar-stat-icon success"><i class="fa-solid fa-user-shield"></i></span>
+      <p class="ragnar-stat-label">مجموعات يمكنك إدارتها</p>
+      <div class="ragnar-stat-value"><%= dashboardStats.manageableCount %></div>
+    </article>
+  </div>
+  <div class="col-6 col-lg-3">
+    <article class="ragnar-card ragnar-stat-card">
+      <span class="ragnar-stat-icon warning"><i class="fa-solid fa-bolt"></i></span>
+      <p class="ragnar-stat-label">تفعيل تلقائي نشط</p>
+      <div class="ragnar-stat-value"><%= dashboardStats.automationsEnabled %></div>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="ragnar-page-head mb-3">
+    <div>
+      <h2 class="ragnar-section-title">المجموعات المرتبطة بحسابك</h2>
+      <p class="ragnar-section-subtitle">اختر مجموعة لمراجعة رسائلها وصلاحياتها وإعداداتها.</p>
     </div>
   </div>
 
-  <div data-list="" class="table-responsive" id="table-threads">
-    <table class="table table-bordered table-striped align-middle">
+  <div class="ragnar-card ragnar-toolbar">
+    <div class="ragnar-search-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input class="form-control search" type="search" placeholder="ابحث باسم المجموعة أو رقمها" aria-label="البحث في المجموعات" id="search-input">
+    </div>
+    <button class="btn btn-ragnar-secondary" id="reset-button" type="button"><i class="fa-solid fa-rotate-right ms-1"></i> مسح البحث</button>
+  </div>
+
+  <div class="ragnar-card ragnar-table-card" id="table-threads" data-list>
+    <% if (threads.length) { %>
+    <table class="table align-middle">
       <thead>
         <tr>
-          <th></th>
-          <th class="sort" data-sort="thread_id">Box ID</th>
-          <th class="sort" data-sort="thread_name">Box Name</th>
-          <th class="sort" data-sort="members">Members</th>
-          <th>Action</th>
+          <th>#</th>
+          <th class="sort" data-sort="thread_name">المجموعة</th>
+          <th class="sort" data-sort="members">الأعضاء</th>
+          <th class="sort" data-sort="automations">التفعيلات</th>
+          <th>صلاحية الحساب</th>
+          <th class="text-start">إجراء</th>
         </tr>
       </thead>
-
       <tbody class="list">
-        <% for (let i=0; i < threads.length; i++) { %>
+        <% for (let i = 0; i < threads.length; i++) { const thread = threads[i]; const enabled = enabledForThread(thread.settings); const isManager = thread.adminIDs?.includes(user.facebookUserID) || thread.members?.some(member => member.userID == user.facebookUserID && member.permissionConfigDashboard); %>
         <tr>
-          <td class="ps-2">
-            <%= i + 1 %>
-          </td>
-          <td class="thread_id">
-            <%= threads[i].threadID %>
-          </td>
+          <td class="text-muted"><%= i + 1 %></td>
           <td class="thread_name">
-            <%= threads[i].threadName || "null" %>
+            <div class="d-flex align-items-center">
+              <span class="ragnar-avatar"><i class="fa-solid fa-comments"></i></span>
+              <div>
+                <div class="ragnar-group-name"><%= thread.threadName || "مجموعة بلا اسم" %></div>
+                <div class="ragnar-group-id"><span class="thread_id"><%= thread.threadID %></span></div>
+              </div>
+            </div>
           </td>
-          <td class="members">
-            <%= threads[i].members.filter(m=> m.inGroup).length %>
-          </td>
-          <td>
-            <a href='/dashboard/<%=threads[i].threadID %>' class='btn btn-phoenix-primary'>
-              <i class="fa-solid fa-wrench"></i>
-            </a>
-          </td>
+          <td class="members"><%= (thread.members || []).filter(member => member.inGroup).length.toLocaleString("ar-EG") %></td>
+          <td class="automations"><span class="ragnar-badge <%= enabled ? "success" : "muted" %>"><i class="fa-solid fa-bolt"></i> <%= enabled %> مفعّل</span></td>
+          <td><span class="ragnar-badge <%= isManager ? "primary" : "warning" %>"><i class="fa-solid <%= isManager ? "fa-pen-to-square" : "fa-eye" %>"></i> <%= isManager ? "تعديل" : "عرض فقط" %></span></td>
+          <td class="text-start"><a href="/dashboard/<%= thread.threadID %>" class="btn btn-ragnar-primary"><i class="fa-solid fa-sliders ms-1"></i> إدارة</a></td>
         </tr>
         <% } %>
       </tbody>
     </table>
-    <ul class="pagination"></ul>
+    <div class="d-flex justify-content-center py-3"><ul class="pagination mb-0"></ul></div>
+    <% } else { %>
+    <div class="ragnar-empty"><i class="fa-solid fa-comments"></i><strong class="d-block mb-2">لا توجد مجموعات متاحة بعد</strong><span>اربط حساب فيسبوك من الملف الشخصي ثم أعد فتح هذه الصفحة.</span></div>
+    <% } %>
   </div>
+</section>
 
-  <script>
-    const options = {
-      valueNames: ["thread_id", "thread_name", "members"],
+<script>
+  (function () {
+    if (!document.querySelector('#table-threads .list')) return;
+    const listThread = new List('table-threads', {
+      valueNames: ['thread_id', 'thread_name', 'members', 'automations'],
       page: 10,
       pagination: true
-    };
-
-    const listThread = new List("table-threads", options);
-
-    const resetButton = $("#reset-button");
-    const searchInput = $("#search-input");
-    const searchBy = $("#searchBy");
-
-    $("#search-input, #searchBy").on("keyup change paste", function(e) {
-      const searchValue = searchInput.val();
-      const searchByValue = searchBy.val();
-      if (searchByValue)
-        listThread.search(searchValue, [searchByValue]);
-      else
-        listThread.search();
     });
-
-    resetButton.on("click", function(e) {
-      searchInput.val("");
+    $('#reset-button').on('click', function () {
+      $('#search-input').val('');
       listThread.search();
     });
-  </script>
+  })();
+</script>
 
-  <%~ includeFile("partials/footer.eta") %>
+<%~ includeFile("partials/footer.eta") %>

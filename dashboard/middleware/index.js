@@ -1,134 +1,91 @@
 const { threadsData } = global.db;
 
 function isPostMethod(req) {
-	return req.method == "POST";
+	return req.method === "POST";
+}
+
+function permissionError(res, status, message) {
+	return res.status(status).send({
+		status: "error",
+		error: "PERMISSION_DENIED",
+		message
+	});
 }
 
 module.exports = function (checkAuthConfigDashboardOfThread) {
 	return {
 		isAuthenticated(req, res, next) {
-			if (req.isAuthenticated())
-				return next();
-
-			if (isPostMethod(req))
-				return res.status(401).send({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Bạn chưa đăng nhập"
-				});
-
-			req.flash("errors", { msg: "You must be logged in" });
-			res.redirect(`/login?redirect=${req.originalUrl}`);
+			if (req.isAuthenticated()) return next();
+			if (isPostMethod(req)) return permissionError(res, 401, "يجب تسجيل الدخول أولًا.");
+			req.flash("errors", { msg: "يجب تسجيل الدخول أولًا." });
+			return res.redirect(`/login?redirect=${encodeURIComponent(req.originalUrl)}`);
 		},
 
 		unAuthenticated(req, res, next) {
-			if (!req.isAuthenticated())
-				return next();
-
-			if (isPostMethod(req))
-				return res.status(401).send({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Đã xảy ra lỗi"
-				});
-
-			res.redirect("/");
+			if (!req.isAuthenticated()) return next();
+			if (isPostMethod(req)) return permissionError(res, 403, "هذه العملية غير متاحة للحساب المسجل حاليًا.");
+			return res.redirect("/");
 		},
 
 		isVeryfiUserIDFacebook(req, res, next) {
-			if (req.user.facebookUserID)
-				return next();
-
-			if (isPostMethod(req))
-				return res.status(401).send({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Bạn chưa xác thực id Facebook"
-				});
-
-			req.flash("errors", { msg: "Bạn cần phải xác thực id facebook trước khi thực hiện hành động này" });
-			res.redirect(`/verifyfbid?redirect=${req.originalUrl}`);
+			if (req.user.facebookUserID) return next();
+			if (isPostMethod(req)) return permissionError(res, 401, "يجب ربط معرّف فيسبوك بالحساب أولًا.");
+			req.flash("errors", { msg: "اربط معرّف فيسبوك بالحساب قبل متابعة هذه العملية." });
+			return res.redirect(`/verifyfbid?redirect=${encodeURIComponent(req.originalUrl)}`);
 		},
 
 		isWaitVerifyAccount(req, res, next) {
-			if (req.session.waitVerifyAccount)
-				return next();
-
-			if (isPostMethod(req))
-				return res.status(401).send({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Đã xảy ra lỗi, vui lòng thử lại"
-				});
-
-			res.redirect("/register");
+			if (req.session.waitVerifyAccount) return next();
+			if (isPostMethod(req)) return permissionError(res, 401, "جلسة التحقق غير صالحة أو منتهية.");
+			return res.redirect("/register");
 		},
 
 		async checkHasAndInThread(req, res, next) {
-			const userID = req.user.facebookUserID;
-			const threadID = isPostMethod(req) ? req.body.threadID : req.params.threadID;
-			const threadData = await threadsData.get(threadID);
+			try {
+				const userID = req.user.facebookUserID;
+				const threadID = isPostMethod(req) ? req.body.threadID : req.params.threadID;
+				const threadData = await threadsData.get(threadID);
+				if (!threadData) {
+					if (isPostMethod(req)) return permissionError(res, 404, "المجموعة غير موجودة.");
+					req.flash("errors", { msg: "المجموعة غير موجودة." });
+					return res.redirect("/dashboard");
+				}
 
-			if (!threadData) {
-				if (isPostMethod(req))
-					return res.status(401).send({
-						status: "error",
-						error: "PERMISSION_DENIED",
-						message: "Không tìm thấy nhóm này"
-					});
-
-				req.flash("errors", { msg: "Thread not found" });
-				return res.redirect("/dashboard");
+				const findMember = threadData.members?.find(member => member.userID == userID && member.inGroup === true);
+				if (!findMember) {
+					if (isPostMethod(req)) return permissionError(res, 403, "حسابك ليس عضوًا حاليًا في هذه المجموعة.");
+					req.flash("errors", { msg: "حسابك ليس عضوًا حاليًا في هذه المجموعة." });
+					return res.redirect("/dashboard");
+				}
+				req.threadData = threadData;
+				return next();
 			}
-
-			const findMember = threadData.members.find(m => m.userID == userID && m.inGroup == true);
-			if (!findMember) {
-				if (isPostMethod(req))
-					return res.status(401).send({
-						status: "error",
-						error: "PERMISSION_DENIED",
-						message: "Bạn không phải là thành viên nhóm này"
-					});
-
-				req.flash("errors", { msg: "Bạn không ở trong nhóm chat này" });
-				return res.redirect("/dashboard");
+			catch (error) {
+				return next(error);
 			}
-			req.threadData = threadData;
-			next();
 		},
 
 		async middlewareCheckAuthConfigDashboardOfThread(req, res, next) {
-			const threadID = isPostMethod(req) ? req.body.threadID : req.params.threadID;
-			if (checkAuthConfigDashboardOfThread(threadID, req.user.facebookUserID))
-				return next();
-
-			if (isPostMethod(req))
-				return res.status(401).send({
-					status: "error",
-					error: "PERMISSION_DENIED",
-					message: "Bạn không có quyền chinh sửa nhóm này"
-				});
-
-			req.flash("errors", {
-				msg: "[!] Chỉ quản trị viên của nhóm chat hoặc những thành viên được cho phép mới có thể chỉnh sửa dashboard"
-			});
-			return res.redirect("/dashboard");
+			try {
+				const threadID = isPostMethod(req) ? req.body.threadID : req.params.threadID;
+				if (await checkAuthConfigDashboardOfThread(threadID, req.user.facebookUserID)) return next();
+				if (isPostMethod(req)) return permissionError(res, 403, "ليس لديك صلاحية تعديل إعدادات هذه المجموعة.");
+				req.flash("errors", { msg: "إعدادات المجموعة متاحة لمشرفي المجموعة أو للأعضاء المخوّلين فقط." });
+				return res.redirect("/dashboard");
+			}
+			catch (error) {
+				return next(error);
+			}
 		},
 
 		async isAdmin(req, res, next) {
 			const userID = req.user.facebookUserID;
 			if (!global.GoatBot.config.adminBot.includes(userID)) {
-				if (isPostMethod(req))
-					return res.status(401).send({
-						status: "error",
-						error: "PERMISSION_DENIED",
-						message: "Bạn không phải là admin của bot"
-					});
-
-				req.flash("errors", { msg: "Bạn không phải là admin của bot" });
+				if (isPostMethod(req)) return permissionError(res, 403, "هذه العملية متاحة لمدير البوت فقط.");
+				req.flash("errors", { msg: "هذه الصفحة متاحة لمدير البوت فقط." });
 				return res.redirect("/dashboard");
 			}
-			next();
+			return next();
 		}
 	};
 };

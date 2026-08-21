@@ -1,126 +1,48 @@
-<script>
-  $(document).ready(function() {
-    if (localStorage.getItem('theme') === 'dark') {
-      $('html').addClass('dark');
-      $('#switch-mode-icon').removeClass('fa-sun');
-      $('#switch-mode-icon').addClass('fa-moon');
-      $('#switch-mode-text').text('light');
-    } else {
-      $('html').removeClass('dark');
-      $('#switch-mode-icon').removeClass('fa-moon');
-      $('#switch-mode-icon').addClass('fa-sun');
-      $('#switch-mode-text').text('dark');
-    }
-  });
-</script>
-
-<nav class="navbar navbar-expand-md fixed-top navbar-top">
+<nav class="navbar navbar-expand-lg fixed-top navbar-top ragnar-nav" aria-label="التنقل الرئيسي">
   <div class="container">
-    <div class="navbar-logo">
-      <a class="navbar-brand" href="/">
-        <div class="d-flex align-items-center">
-          <img src="/images/logo-non-bg.png" height="40px" width="40px" class="d-inline-block align-top rounded" alt="logo">
-          <span class="h4 mb-0 text-uppercase d-sm-block ms-2">GoatBot</span>
-        </div>
-      </a>
-    </div>
+    <a class="navbar-brand d-flex align-items-center" href="/dashboard" aria-label="العودة إلى لوحة التحكم">
+      <span class="ragnar-brand-mark"><i class="fa-solid fa-shield-halved"></i></span>
+      <span class="fw-bold">Ragnar <small class="d-none d-sm-inline text-body-secondary">مركز التحكم</small></span>
+    </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navcollapse" aria-controls="navcollapse" aria-expanded="true" aria-label="Toggle Navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navcollapse" aria-controls="navcollapse" aria-expanded="false" aria-label="فتح القائمة">
       <span class="navbar-toggle-icon"><span class="toggle-line"></span></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navcollapse">
-      <ul class="navbar-nav me-auto">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a href="/dashboard" class="nav-link px-2">
-            <i class="fas fa-cog"></i> Dashboard
-          </a>
+          <a href="/dashboard" class="nav-link px-2"><i class="fa-solid fa-gauge-high ms-1"></i> لوحة التحكم</a>
         </li>
-
         <li class="nav-item">
-          <a href="/stats" class="nav-link px-2">
-            <i class="fas fa-chart-bar"></i>
-            Bot stats
-          </a>
+          <a href="/stats" class="nav-link px-2"><i class="fa-solid fa-chart-column ms-1"></i> حالة البوت</a>
         </li>
-
         <li class="nav-item">
-          <a href="/donate" class="nav-link px-2">
-            <i class="fas fa-donate"></i>
-            Donate
-          </a>
+          <a href="/profile" class="nav-link px-2"><i class="fa-solid fa-user-gear ms-1"></i> الحساب</a>
         </li>
       </ul>
 
-      <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-          <a class="nav-link px-2" id="switch-mode" role="button">
-            <i class="fas " id="switch-mode-icon" aria-hidden="true"></i>
-            <span class="d-md-none">Switch to <span id="switch-mode-text">light</span> mode</span>
-          </a>
-        </li>
-
+      <ul class="navbar-nav align-items-lg-center">
         <% if (user) { %>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle px-2" data-bs-toggle="dropdown" href="#" role="button" id="userDropdown" aria-expanded="false">
-            <i class="fas fa-user"></i>
-            <%= user.name %>
+            <i class="fa-solid fa-circle-user ms-1"></i> <%= user.name %>
           </a>
           <ul class="dropdown-menu mb-2" aria-labelledby="userDropdown">
             <% if (!user.facebookUserID) { %>
-            <a href="/verifyfbid" class="dropdown-item">
-              <i class="fas fa-user-check"></i> Xác thực id facebook
-            </a>
+            <li><a href="/verifyfbid" class="dropdown-item"><i class="fa-solid fa-user-check ms-1"></i> ربط معرّف فيسبوك</a></li>
             <% } %>
-            <a href="/profile" class="dropdown-item">
-              <i class="fas fa-user-circle"></i> Profile
-            </a>
-            <a href="/change-password" class="dropdown-item">
-              <i class="fas fa-key"></i> Đổi mật khẩu
-            </a>
-            <a href="/logout" class="dropdown-item">
-              <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <li><a href="/profile" class="dropdown-item"><i class="fa-solid fa-address-card ms-1"></i> الملف الشخصي</a></li>
+            <li><a href="/change-password" class="dropdown-item"><i class="fa-solid fa-key ms-1"></i> تغيير كلمة المرور</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a href="/logout" class="dropdown-item"><i class="fa-solid fa-right-from-bracket ms-1"></i> تسجيل الخروج</a></li>
           </ul>
         </li>
         <% } else { %>
-        <li class="nav-item">
-          <a href="/login" class="nav-link px-2">
-            <i class="fas fa-sign-in-alt"></i>
-            Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="/register" class="nav-link px-2">
-            <i class="fas fa-user-plus"></i>
-            Register
-          </a>
-        </li>
+        <li class="nav-item"><a href="/login" class="nav-link px-2"><i class="fa-solid fa-right-to-bracket ms-1"></i> تسجيل الدخول</a></li>
+        <li class="nav-item"><a href="/register" class="nav-link px-2"><i class="fa-solid fa-user-plus ms-1"></i> إنشاء حساب</a></li>
         <% } %>
       </ul>
     </div>
   </div>
 </nav>
-
-<script>
-  (function() {
-    $(document).ready(function() {
-      $('#switch-mode').click(function() {
-        if (localStorage.getItem('theme') === 'dark') {
-          localStorage.setItem('theme', 'light');
-					$('html').removeClass('dark');
-          $('#switch-mode-icon').removeClass('fa-moon');
-					$('#switch-mode-icon').addClass('fa-sun');
-					$('#switch-mode-text').text('dark');
-					
-				} else {
-					localStorage.setItem('theme', 'dark');
-					$('html').addClass('dark');
-					$('#switch-mode-icon').removeClass('fa-sun');
-					$('#switch-mode-icon').addClass('fa-moon');
-					$('#switch-mode-text').text('light');
-        }
-      });
-    });
-  })();
-</script>

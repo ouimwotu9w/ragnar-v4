@@ -1,32 +1,24 @@
-<%~ includeFile("partials/header.eta", {
-	user: user
-}); %>
+<%~ includeFile("partials/header.eta", { user: user }); %>
 <%~ includeFile("partials/message.eta"); %>
-<%~ includeFile("partials/title.eta", {
-	icon: "fas fa-cog",
-	title: "Custom command"
-}); %>
 
-<div class="container">
-  <div class="row mt-5">
-    <div class="col-md-12">
-      <div class="alert alert-warning" role="alert">
-        <h4 class="alert-heading">Warning!</h4>
-        <p>This feature is currently under construction. Please come back later.</p>
-      </div>
+<section class="ragnar-page-head">
+  <div>
+    <a href="/dashboard/<%= threadID %>" class="ragnar-kicker text-decoration-none"><i class="fa-solid fa-arrow-right ms-1"></i> الرجوع لإعدادات المجموعة</a>
+    <h1 class="ragnar-page-title">الأوامر المخصصة</h1>
+    <p class="ragnar-page-description mb-0">مفتاح تفعيل الأوامر المخصصة موجود في إعدادات المجموعة، بينما إنشاء الأمر وتعديله يتمان من محادثة المجموعة نفسها.</p>
+  </div>
+  <span class="ragnar-badge warning"><i class="fa-solid fa-terminal"></i> إدارة عبر المحادثة</span>
+</section>
+
+<section class="ragnar-card p-4">
+  <div class="d-flex align-items-start gap-3">
+    <span class="ragnar-stat-icon"><i class="fa-solid fa-code"></i></span>
+    <div>
+      <h2 class="ragnar-section-title mb-2">إعداد موثوق بدل صفحة شكلية</h2>
+      <p class="ragnar-page-description mb-3">هذه النسخة من البوت لا تملك واجهة ويب لحفظ بنية الأوامر المخصصة. لذلك لا تعرض اللوحة نموذجًا لا يكتب في قاعدة البيانات. شغّل أو أوقف هذه الميزة من صفحة المجموعة، ثم استخدم أوامر البوت المخصصة داخل المحادثة لإدارتها.</p>
+      <a href="/dashboard/<%= threadID %>" class="btn btn-ragnar-primary"><i class="fa-solid fa-sliders ms-1"></i> الرجوع للتشغيل التلقائي</a>
     </div>
   </div>
-</div>
-
-<script type="text/javascript">
-  (function() {
-    $.createToast({
-      title: "Comming soon",
-      message: "Tính năng này đang được phát triển. Vui lòng quay lại sau.",
-      type: "warning",
-      time: 10000
-    });
-  })();
-</script>
+</section>
 
 <%~ includeFile("partials/footer.eta") %>
